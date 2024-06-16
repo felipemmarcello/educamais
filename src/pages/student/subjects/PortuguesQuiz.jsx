@@ -7,6 +7,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TextWithColor from '../../../components/TextWithColors.jsx';
 import { useNavigate } from "react-router-dom";
+import JSConfetti from 'js-confetti';
 import './QuizStyles.css';
 
 const QuizQuestion = ({
@@ -86,7 +87,7 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
       <Box sx={{ alignSelf: 'flex-start' }}>
         <Typography variant="h5" gutterBottom>Resultados</Typography>
       </Box>
-      <Box display="flex" alignItems="center" mb={1} sx={{ alignSelf: 'flex-start', marginBottom: '5%'}}>
+      <Box display="flex" alignItems="center" mb={1} sx={{ alignSelf: 'flex-start', marginBottom: '5%' }}>
         <Typography variant="body1">Total de Perguntas: {correctCount + incorrectCount}</Typography>
       </Box>
       <Box display="flex" alignItems="center" mb={1}>
@@ -193,6 +194,8 @@ const PortugueseQuiz = () => {
   };
 
   const handleFinish = () => {
+    const jsConfetti = new JSConfetti();
+    jsConfetti.addConfetti();
     setQuizFinished(true);
   };
 
