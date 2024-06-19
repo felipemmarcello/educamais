@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -6,7 +7,6 @@ import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormContr
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TextWithColor from '../../../components/TextWithColors.jsx';
-import { useNavigate } from "react-router-dom";
 import JSConfetti from 'js-confetti';
 import './QuizStyles.css';
 
@@ -105,6 +105,7 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
 );
 
 const PortugueseQuiz = () => {
+  const { subjectId, selectedSubject } = useParams();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -115,6 +116,7 @@ const PortugueseQuiz = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
   const [answered, setAnswered] = useState(false);
+  const [fantasyName, setFantasyName] = useState('');
 
   const navigate = useNavigate(); // Adicionado o hook useNavigate
 
@@ -136,10 +138,15 @@ const PortugueseQuiz = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const querySnapshot = await getDocs(collection(db, "portugueseQuestions"));
-      let fetchedQuestions = querySnapshot.docs.map((doc) => doc.data());
+      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`));
+      let fetchedQuestions = querySnapshot.docs
+        .map((doc) => doc.data())
+        .filter((question) => question.subject === selectedSubject);
 
       if (fetchedQuestions.length > 0) {
+        const questionWithFantasyName = fetchedQuestions[0];
+        setFantasyName(questionWithFantasyName.fantasyName);
+        
         fetchedQuestions = fetchedQuestions.map((question) => ({
           ...question,
           answers: shuffleArray(question.answers)
@@ -151,7 +158,7 @@ const PortugueseQuiz = () => {
     };
 
     fetchQuestions();
-  }, []);
+  }, [subjectId, selectedSubject]);
 
   const handleAnswerSelect = (event) => {
     setSelectedAnswer(event.target.value);
@@ -206,10 +213,9 @@ const PortugueseQuiz = () => {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '5%' }}>
           <Typography variant="h3" gutterBottom className="text-shadow">
-            <TextWithColor subject="portugues" text="Língua Portuguesa" />
+            <TextWithColor subject="portugues" text={fantasyName} />
           </Typography>
         </Box>
-
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Container>
             <Paper elevation={2} sx={{borderRadius: '5px'}}>
@@ -237,7 +243,7 @@ const PortugueseQuiz = () => {
         </Box>
         {quizFinished && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2}}>
-            <Button variant="outlined" onClick={() => navigate("/student/subjects")}>
+            <Button variant="outlined" onClick={() => navigate(`/student/subjects/${subjectId}`)}>
               Voltar
             </Button>
           </Box>

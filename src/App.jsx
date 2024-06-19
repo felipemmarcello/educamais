@@ -13,10 +13,10 @@ import HomeStudent from './pages/student/HomeStudent.jsx';
 import StudentLayout from './pages/student/StudentLayout.jsx';
 import Subjects from './pages/student/SubjectsPage.jsx';
 import PortugueseQuiz from './pages/student/subjects/PortuguesQuiz.jsx';
-
-function ProfessorDashboard() {
-  return <h1>Professor Dashboard</h1>;
-}
+import HomeProfessor from './pages/professor/HomeProfessor.jsx';
+import ProfessorLayout from './pages/professor/ProfessorLayout.jsx';
+import ProtectedProfessorRoute from './pages/professor/ProtectedProfessorRoute.jsx';
+import SubjectList from './pages/student/subjects/SubjectsList.jsx';
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -53,10 +53,13 @@ function App() {
                 <Route path="/student" element={<ProtectedStudentRoute><StudentLayout /></ProtectedStudentRoute>}>
                   <Route index element={<HomeStudent />} />
                   <Route path="subjects" element={<Subjects />} />
-                  <Route path="subjects/portuguese-quiz" element={<PortugueseQuiz />} />
+                  <Route path="subjects/:subjectId" element={<SubjectList />} />
+                  <Route path="subjects/:subjectId/:selectedSubject" element={<PortugueseQuiz />} />
                 </Route>
 
-                <Route path="/professor" element={<ProfessorDashboard />} />
+                <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>
+                  <Route index element={<HomeProfessor />} />
+                </Route>
               </Routes>
             </Router>
           </div>

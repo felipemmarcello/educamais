@@ -60,13 +60,13 @@ const Subjects = () => {
         }}
       >
         {[
-          { subject: 'portuguese-quiz', name: 'Língua Portuguesa' },
-          { subject: 'mat2', name: 'Matemática' },
-          { subject: 'mat3', name: 'Ciências' },
-          { subject: 'mat4', name: 'Geografia' },
-          { subject: 'mat5', name: 'História' },
-          { subject: 'mat6', name: 'Arte' },
-          { subject: 'art', name: 'Língua Inglesa' },
+          { subject: 'portuguese', name: 'Língua Portuguesa' },
+          { subject: 'mathematics', name: 'Matemática' },
+          { subject: 'science', name: 'Ciências' },
+          { subject: 'geography', name: 'Geografia' },
+          { subject: 'history', name: 'História' },
+          { subject: 'art', name: 'Arte' },
+          { subject: 'english', name: 'Língua Inglesa' },
         ].map((item, index) => (
 
           <Grid item xs={4} key={index} onClick={() => handleNavigation(item.subject)}>
