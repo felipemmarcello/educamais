@@ -82,20 +82,20 @@ const QuizQuestion = ({
 );
 
 const QuizResults = ({ correctCount, incorrectCount }) => (
-  <CardContent style={{ marginTop: '29%' }}>
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '150px' }}>
-      <Box sx={{ alignSelf: 'flex-start' }}>
+  <CardContent style={{ marginTop: '35%'}}>
+    <Box sx={{ display: 'flex', flexDirection: 'column'}}>
+      <Box sx={{}}>
         <Typography variant="h5" gutterBottom>Resultados</Typography>
       </Box>
-      <Box display="flex" alignItems="center" mb={1} sx={{ alignSelf: 'flex-start', marginBottom: '5%' }}>
+      <Box display="flex" alignItems="center" mb={2} sx={{width: '100%', textAlign: 'center', paddingRight: '100px' }}>
         <Typography variant="body1">Total de Perguntas: {correctCount + incorrectCount}</Typography>
       </Box>
-      <Box display="flex" alignItems="center" mb={1}>
+      <Box display="flex" alignItems="center" mb={1} sx={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
         <Typography variant="body1" sx={{ mr: 1 }}> Respostas: </Typography>
         <CheckCircleIcon color="success" sx={{ mr: 1 }} />
         <Typography variant="body1">{correctCount}</Typography>
       </Box>
-      <Box display="flex" alignItems="center">
+      <Box display="flex" alignItems="center" sx={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
         <Typography variant="body1" sx={{ mr: 1 }}> Respostas: </Typography>
         <CancelIcon color="error" sx={{ mr: 1 }} />
         <Typography variant="body1">{incorrectCount}</Typography>
@@ -116,7 +116,7 @@ const PortugueseQuiz = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
   const [answered, setAnswered] = useState(false);
-  const [fantasyName, setFantasyName] = useState('');
+  const [subject, setSubject] = useState('');
 
   const navigate = useNavigate(); // Adicionado o hook useNavigate
 
@@ -144,8 +144,8 @@ const PortugueseQuiz = () => {
         .filter((question) => question.subject === selectedSubject);
 
       if (fetchedQuestions.length > 0) {
-        const questionWithFantasyName = fetchedQuestions[0];
-        setFantasyName(questionWithFantasyName.fantasyName);
+        const questionWithSubject = fetchedQuestions[0];
+        setSubject(questionWithSubject.subject);
         
         fetchedQuestions = fetchedQuestions.map((question) => ({
           ...question,
@@ -185,9 +185,9 @@ const PortugueseQuiz = () => {
 
     await addDoc(collection(db, "userPortugueseResponses"), {
       userId: user.uid,
-      question: currentQuestion.question,
-      selectedAnswer,
+      question: currentQuestion.question, selectedAnswer,
       isCorrect: isCorrect,
+      subject: currentQuestion.subject
     });
 
     setAnswered(true);
@@ -209,11 +209,11 @@ const PortugueseQuiz = () => {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '5%' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '3%' }}>
       <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '5%' }}>
-          <Typography variant="h3" gutterBottom className="text-shadow">
-            <TextWithColor subject="portugues" text={fantasyName} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
+          <Typography variant="h3" gutterBottom>
+            <TextWithColor subject="portugues" text={subject} />
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

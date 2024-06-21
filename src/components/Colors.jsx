@@ -1,11 +1,11 @@
 const Colors = {
-    matematica: '#FFD700',
-    portugues: '#FF6347',
-    historia: '#DEB887',
-    geografia: '#00BFFF',
-    ciencias: '#00FA9A',
-    arte: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
-    ingles: 'linear-gradient(to right, blue, red, white)'
-  };
-  
-  export default Colors;
+  mathematics: '#FFD700',
+  portuguese: '#FF6347',
+  history: '#DEB887',
+  geography: '#00BFFF',
+  science: '#00FA9A',
+  art: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
+  english: 'linear-gradient(to right, blue, red, white)'
+};
+
+export default Colors;

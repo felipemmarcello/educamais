@@ -34,7 +34,7 @@ function HomeStudent() { // Asumindo que 'user' está sendo compartilhado atrav�
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', paddingLeft: '3%' ,paddingTop: '5%' }}>
         <Typography variant="body1">
-          Este é o conteúdo principal da página do Estudante. Aqui, você tem acesso completo às perguntas e respostas da "Escola" Educa+.
+          Este é o conteúdo principal da página do Estudante. Aqui, você tem acesso completo às perguntas e respostas do Educa+.
         </Typography>
       </Box>
     </div>
