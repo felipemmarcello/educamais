@@ -17,6 +17,8 @@ import HomeProfessor from './pages/professor/HomeProfessor.jsx';
 import ProfessorLayout from './pages/professor/ProfessorLayout.jsx';
 import ProtectedProfessorRoute from './pages/professor/ProtectedProfessorRoute.jsx';
 import SubjectList from './pages/student/subjects/SubjectsList.jsx';
+import SubjectsPageProfessor from './pages/professor/SubjectsPageProfessor.jsx';
+import SubjectsListProfessor from './pages/professor/SubjectsListProfessor.jsx';
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -59,6 +61,8 @@ function App() {
 
                 <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>
                   <Route index element={<HomeProfessor />} />
+                  <Route path="subjects" element={<SubjectsPageProfessor />} />
+                  <Route path="subjects/:subjectId" element={<SubjectsListProfessor />} />
                 </Route>
               </Routes>
             </Router>

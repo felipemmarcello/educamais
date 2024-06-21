@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { db } from '../../../firebase/firebase.js';
+import { db } from '../../firebase/firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
-import { Container, Typography, List, ListItem, ListItemText, ListItemButton, Box, Divider, Paper, TextField, Pagination } from '@mui/material';
-import TextWithColor from '../../../components/TextWithColors.jsx';
+import { Container, Typography, List, ListItem, ListItemText, ListItemButton, Box, Divider, Paper, TextField, Pagination, Card, CardContent } from '@mui/material';
+import TextWithColor from '../../components/TextWithColors.jsx';
 
-const SubjectList = () => {
+const SubjectsListProfessor = () => {
   const { subjectId } = useParams();
   const [subjects, setSubjects] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(null);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const subjectsPerPage = 7;
@@ -28,9 +30,11 @@ const SubjectList = () => {
     const fetchSubjects = async () => {
       const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`));
       let fetchedSubjects = new Set();
+      let fetchedQuestions = [];
       querySnapshot.docs.forEach((doc) => {
         const data = doc.data();
         fetchedSubjects.add(data.subject);
+        fetchedQuestions.push(data);
       });
       const subjectsArray = Array.from(fetchedSubjects).map(subject => ({
         subject,
@@ -39,13 +43,14 @@ const SubjectList = () => {
       // Ordenar os subjects em ordem alfabética
       subjectsArray.sort((a, b) => a.subject.localeCompare(b.subject));
       setSubjects(subjectsArray);
+      setQuestions(fetchedQuestions);
     };
 
     fetchSubjects();
   }, [subjectId]);
 
   const handleNavigation = (subject) => {
-    navigate(`/student/subjects/${subjectId}/${subject}`);
+    setSelectedSubject(subject);
   };
 
   const handleChangePage = (event, value) => {
@@ -68,6 +73,8 @@ const SubjectList = () => {
     return details ? details.name : subjectId.charAt(0).toUpperCase() + subjectId.slice(1);
   };
 
+  const questionsForSelectedSubject = questions.filter(question => question.subject === selectedSubject);
+
   return (
     <Container>
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '5%', marginTop: '6%' }}>
@@ -75,7 +82,7 @@ const SubjectList = () => {
           <TextWithColor subject={subjectId} text={getSubjectDisplayName(subjectId)} color={subjectDetails[subjectId]?.color} />
         </Typography>
       </Box>
-      <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '70%' }}>
+      <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
         <Paper elevation={2} sx={{ padding: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '20px' }}>
             <Typography variant="h5" gutterBottom>
@@ -101,18 +108,50 @@ const SubjectList = () => {
               </React.Fragment>
             ))}
           </List>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Pagination
+              count={Math.ceil(filteredSubjects.length / subjectsPerPage)}
+              page={page}
+              onChange={handleChangePage}
+              color="primary"
+            />
+          </Box>
         </Paper>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Pagination
-            count={Math.ceil(filteredSubjects.length / subjectsPerPage)}
-            page={page}
-            onChange={handleChangePage}
-            color="primary"
-          />
-        </Box>
       </Box>
+      {selectedSubject && (
+        <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
+          <Paper elevation={2} sx={{ padding: '20px' }}>
+            <Typography variant="h5" gutterBottom>
+              Questões para {selectedSubject}
+            </Typography>
+            <List>
+              {questionsForSelectedSubject.map((question, index) => (
+                <React.Fragment key={index}>
+                  <ListItem disablePadding>
+                    <Card sx={{ width: '100%', mb: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6">{question.question}</Typography>
+                        <Typography variant="body2" color="textSecondary">Alternativas:</Typography>
+                        <List>
+                          {question.answers.map((answer, i) => (
+                            <ListItem key={i}>
+                              <ListItemText primary={answer} />
+                            </ListItem>
+                          ))}
+                        </List>
+                        <Typography variant="body2" color="textSecondary">Resposta Correta: {question.correctAnswer}</Typography>
+                      </CardContent>
+                    </Card>
+                  </ListItem>
+                  {index < questionsForSelectedSubject.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </List>
+          </Paper>
+        </Box>
+      )}
     </Container>
   );
 };
 
-export default SubjectList;
+export default SubjectsListProfessor;

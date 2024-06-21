@@ -13,7 +13,7 @@ function AdminLayout() {
       <div style={{
         flexGrow: 1,
         overflowY: 'auto',
-        maxWidth: '1040px'  // Ajustar com base na largura do SideBarAdmin
+        maxWidth: '100%'  // Ajustar com base na largura do SideBarAdmin
       }}>
         <Outlet />
       </div>

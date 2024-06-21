@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } f
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase/firebase.js';
-import { TextField, Button, Paper, Box, FormControlLabel, Checkbox, IconButton, InputAdornment } from '@mui/material';
+import { TextField, Button, Paper, Box, FormControlLabel, Checkbox, IconButton, InputAdornment, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import educaImage from '../images/educa-mais.png';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -26,6 +26,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState(''); // Estado para rastrear a mensagem de erro
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,6 +84,7 @@ function LoginPage() {
       }
     } catch (error) {
       console.error('Erro durante o login:', error);
+      setError('E-mail ou Senha incorreto. Tente novamente.'); // Define a mensagem de erro
     }
   }
 
@@ -140,6 +142,11 @@ function LoginPage() {
             ),
           }}
         />
+        {error && (
+          <Typography variant="caption" color="error" sx={{ mb: 0, fontSize: '12px' }}>
+            {error}
+          </Typography>
+        )}
         </ThemeProvider>
         <Box sx= {{width: '100%', display: 'flex', justifyContent: 'flex-initial'}}>
           <ThemeProvider theme={theme}>
@@ -155,7 +162,6 @@ function LoginPage() {
             />
           </ThemeProvider>
         </Box>
-
         <ThemeProvider theme={theme}>
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end'}}>
             <Button variant="contained" color="primary" onClick={handleSignIn}>Entrar</Button>
