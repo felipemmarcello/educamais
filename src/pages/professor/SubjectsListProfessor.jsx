@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../firebase/firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
-import { Container, Typography, List, ListItem, ListItemText, ListItemButton, Box, Divider, Paper, TextField, Pagination, Card, CardContent } from '@mui/material';
+import { Container, Typography, List, ListItem, ListItemText, ListItemButton, Box, Divider, Paper, TextField, Pagination, Card, CardContent, Grid } from '@mui/material';
+import { CheckCircle, Cancel } from '@mui/icons-material';
 import TextWithColor from '../../components/TextWithColors.jsx';
 
 const SubjectsListProfessor = () => {
@@ -23,7 +24,8 @@ const SubjectsListProfessor = () => {
     geography: { name: 'Geografia', color: '#00BFFF' },
     history: { name: 'História', color: '#DEB887' },
     art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)' },
-    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, red, white)' }
+    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, red, white)' },
+    physicalEducation: { name: 'Educação Física', color: 'orange' }
   };
 
   useEffect(() => {
@@ -82,7 +84,7 @@ const SubjectsListProfessor = () => {
           <TextWithColor subject={subjectId} text={getSubjectDisplayName(subjectId)} color={subjectDetails[subjectId]?.color} />
         </Typography>
       </Box>
-      <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
+      <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '70%' }}>
         <Paper elevation={2} sx={{ padding: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '20px' }}>
             <Typography variant="h5" gutterBottom>
@@ -119,34 +121,36 @@ const SubjectsListProfessor = () => {
         </Paper>
       </Box>
       {selectedSubject && (
-        <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
-          <Paper elevation={2} sx={{ padding: '20px' }}>
+        <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '100%'}}>
+          <Paper elevation={0} sx={{ padding: '20px' }}>
             <Typography variant="h5" gutterBottom>
-              Questões para {selectedSubject}
+              Questões do conteúdo: {selectedSubject}
             </Typography>
-            <List>
+            <Grid container spacing={3}>
               {questionsForSelectedSubject.map((question, index) => (
-                <React.Fragment key={index}>
-                  <ListItem disablePadding>
-                    <Card sx={{ width: '100%', mb: 2 }}>
-                      <CardContent>
-                        <Typography variant="h6">{question.question}</Typography>
-                        <Typography variant="body2" color="textSecondary">Alternativas:</Typography>
-                        <List>
-                          {question.answers.map((answer, i) => (
-                            <ListItem key={i}>
-                              <ListItemText primary={answer} />
-                            </ListItem>
-                          ))}
-                        </List>
-                        <Typography variant="body2" color="textSecondary">Resposta Correta: {question.correctAnswer}</Typography>
-                      </CardContent>
-                    </Card>
-                  </ListItem>
-                  {index < questionsForSelectedSubject.length - 1 && <Divider />}
-                </React.Fragment>
+                <Grid item xs={12} sm={6} key={index}>
+                  <Card sx={{ width: '100%', mb: 0 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontSize: '1rem' }}>{question.question}</Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.875rem', mt: 1 }}>Alternativas:</Typography>
+                      <List>
+                        {question.answers.map((answer, i) => (
+                          <ListItem key={i} sx={{paddingBottom: '0px', pl: 2 }}>
+                            <ListItemText primary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', paddingBottom: '0px' }}>
+                                <Box sx={{ flexGrow: 2 }}>{answer}</Box>
+                                {answer === question.correctAnswer && <CheckCircle color="success" />}
+                                {answer !== question.correctAnswer && <Cancel color="error" />}
+                              </Box>
+                            } sx={{ fontSize: '0.875rem' }} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
               ))}
-            </List>
+            </Grid>
           </Paper>
         </Box>
       )}

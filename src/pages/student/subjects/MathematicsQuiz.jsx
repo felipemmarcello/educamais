@@ -8,7 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TextWithColor from '../../../components/TextWithColors.jsx';
 import JSConfetti from 'js-confetti';
-import './QuizStyles.css';
+import '../subjectsCSS/QuizStyles.css';
 
 const QuizQuestion = ({
   question,
@@ -24,7 +24,9 @@ const QuizQuestion = ({
   totalQuestions
 }) => (
   <div style={{ width: '760px' }}>
-    <Typography variant="h6" style={{ marginTop: '3%', marginLeft: '5%', paddingTop: '2%' }} gutterBottom>{question.question}</Typography>
+    <Typography variant="h6" style={{ marginTop: '3%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
+      {question.question}
+    </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
       <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
         {question.answers.map((answer, index) => {
@@ -104,7 +106,7 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
   </CardContent>
 );
 
-const PortugueseQuiz = () => {
+const MathQuiz = () => {
   const { subjectId, selectedSubject } = useParams();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -183,9 +185,10 @@ const PortugueseQuiz = () => {
       setIncorrectCount(incorrectCount + 1);
     }
 
-    await addDoc(collection(db, "userPortugueseResponses"), {
+    await addDoc(collection(db, "userMathResponses"), {
       userId: user.uid,
-      question: currentQuestion.question, selectedAnswer,
+      question: currentQuestion.question,
+      selectedAnswer,
       isCorrect: isCorrect,
       subject: currentQuestion.subject
     });
@@ -212,8 +215,8 @@ const PortugueseQuiz = () => {
     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '3%' }}>
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
-          <Typography variant="h3" gutterBottom>
-            <TextWithColor subject="portugues" text={subject} />
+          <Typography variant="h2" gutterBottom>
+            <TextWithColor subject="mathematics" text={subject} />
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -253,4 +256,4 @@ const PortugueseQuiz = () => {
   );
 };
 
-export default PortugueseQuiz;
+export default MathQuiz;

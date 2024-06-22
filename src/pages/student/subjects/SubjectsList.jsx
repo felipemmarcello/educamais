@@ -5,7 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { Container, Typography, List, ListItem, ListItemText, ListItemButton, Box, Divider, Paper, TextField, Pagination } from '@mui/material';
 import TextWithColor from '../../../components/TextWithColors.jsx';
 
-const SubjectList = () => {
+const SubjectsList = () => {
   const { subjectId } = useParams();
   const [subjects, setSubjects] = useState([]);
   const [page, setPage] = useState(1);
@@ -21,7 +21,8 @@ const SubjectList = () => {
     geography: { name: 'Geografia', color: '#00BFFF' },
     history: { name: 'História', color: '#DEB887' },
     art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)' },
-    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, red, white)' }
+    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, red, white)' },
+    physicalEducation: { name: 'Educação Física', color: 'orange' }
   };
 
   useEffect(() => {
@@ -32,10 +33,12 @@ const SubjectList = () => {
         const data = doc.data();
         fetchedSubjects.add(data.subject);
       });
+
       const subjectsArray = Array.from(fetchedSubjects).map(subject => ({
         subject,
         ...subjectDetails[subject]
       }));
+
       // Ordenar os subjects em ordem alfabética
       subjectsArray.sort((a, b) => a.subject.localeCompare(b.subject));
       setSubjects(subjectsArray);
@@ -115,4 +118,4 @@ const SubjectList = () => {
   );
 };
 
-export default SubjectList;
+export default SubjectsList;

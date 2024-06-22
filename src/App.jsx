@@ -12,13 +12,13 @@ import ProtectedStudentRoute from './pages/student/ProtectedStudentRoute.jsx';
 import HomeStudent from './pages/student/HomeStudent.jsx';
 import StudentLayout from './pages/student/StudentLayout.jsx';
 import Subjects from './pages/student/SubjectsPage.jsx';
-import PortugueseQuiz from './pages/student/subjects/PortuguesQuiz.jsx';
 import HomeProfessor from './pages/professor/HomeProfessor.jsx';
 import ProfessorLayout from './pages/professor/ProfessorLayout.jsx';
 import ProtectedProfessorRoute from './pages/professor/ProtectedProfessorRoute.jsx';
 import SubjectList from './pages/student/subjects/SubjectsList.jsx';
 import SubjectsPageProfessor from './pages/professor/SubjectsPageProfessor.jsx';
 import SubjectsListProfessor from './pages/professor/SubjectsListProfessor.jsx';
+import QuizRouter from './pages/student/QuizRouter.jsx';
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -56,7 +56,7 @@ function App() {
                   <Route index element={<HomeStudent />} />
                   <Route path="subjects" element={<Subjects />} />
                   <Route path="subjects/:subjectId" element={<SubjectList />} />
-                  <Route path="subjects/:subjectId/:selectedSubject" element={<PortugueseQuiz />} />
+                  <Route path="subjects/:subjectId/:selectedSubject" element={<QuizRouter />} />
                 </Route>
 
                 <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, Box, Card, CardContent } from '@mui/material';
 import bookSchool from '../../images/bookSchool.png';
 
-const Subjects = () => {
+const SubjectsPage = () => {
   const navigate = useNavigate();
 
   const handleNavigation = (subject) => {
@@ -67,8 +67,8 @@ const Subjects = () => {
           { subject: 'history', name: 'História' },
           { subject: 'art', name: 'Arte' },
           { subject: 'english', name: 'Língua Inglesa' },
+          { subject: 'physicalEducation', name: 'Educação Física' },
         ].map((item, index) => (
-
           <Grid item xs={4} key={index} onClick={() => handleNavigation(item.subject)}>
             <Card sx={{ cursor: 'pointer' }}>
               <CardContent>
@@ -84,4 +84,4 @@ const Subjects = () => {
   );
 };
 
-export default Subjects;
+export default SubjectsPage;
