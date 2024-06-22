@@ -238,7 +238,11 @@ function ListUsers() {
                 </Dialog>
                 <Dialog open={deleteDialogOpen} onClose={handleDeleteDialogClose}>
                     <DialogTitle>Confirmação de Exclusão</DialogTitle>
-                    <DialogContent>Tem certeza que deseja excluir este usuário?</DialogContent>
+                    <DialogContent>
+                        <Typography variant="body1">
+                            Tem certeza que deseja excluir este usuário?
+                        </Typography>
+                    </DialogContent>
                     <DialogActions>
                         <Button onClick={handleDeleteDialogClose} color="primary">
                             Cancelar
