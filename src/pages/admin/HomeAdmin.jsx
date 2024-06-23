@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Container, Paper, Divider, Grid } from '@mui/material';
 import UserContext from '../../contexts/UserContext.jsx';
-import { db, auth } from '../../firebase/firebase.js';
+import { db } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
+import exemploGrafico from '../../images/exemplografico.png';
+import exemploGrafico2 from '../../images/exemplografico2.png';
 
-function HomeAdmin() { // Asumindo que 'user' está sendo compartilhado através do contexto
+function HomeAdmin() {
   const [user, setUser] = useState(null);
   const { globalUid } = useContext(UserContext);
 
@@ -26,21 +28,35 @@ function HomeAdmin() { // Asumindo que 'user' está sendo compartilhado através
   }, [globalUid]);
 
   return (
-    <div>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '5%' }}>
-        <Typography variant="h4" gutterBottom>
+    <Container maxWidth="lg" sx={{ paddingTop: '4%' }}>
+      <Paper elevation={0} sx={{ padding: '2rem' }}>
+        <Typography variant="h4" gutterBottom textAlign="center">
           Bem-vindo(a), {user ? user.name : "Carregando..."}
         </Typography>
-      </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', paddingLeft: '3%' ,paddingTop: '5%' }}>
-        <Typography variant="body1">
-          Este é o conteúdo principal da página do administrador. Aqui, você tem acesso completo para gerenciar o sistema da Escola Educa+.
+        
+        <Divider sx={{ marginY: 5 }} />
+
+        <Typography variant="body1" paragraph>
+          Como administrador, você pode:
         </Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          Como administrador, você pode criar novos usuários, editar suas informações e excluí-los conforme necessário.
-        </Typography>
-      </Box>
-    </div>
+
+        <ul>
+          <li><Typography variant="body1">Criar novos usuários e definir seus papéis.</Typography></li>
+          <li><Typography variant="body1">Editar informações dos usuários existentes.</Typography></li>
+          <li><Typography variant="body1">Excluir usuários que não fazem mais parte da instituição.</Typography></li>
+        </ul>
+        <Box sx= {{marginY: '8%'}}>
+          <Grid container spacing={15} justifyContent="center">
+            <Grid item xs={12} sm={6} md={5.3}>
+              <img src={exemploGrafico} alt="grafico" style={{ width: '100%' }} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4.7}>
+              <img src={exemploGrafico2} alt="grafico2" style={{ width: '100%' }} />
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 
