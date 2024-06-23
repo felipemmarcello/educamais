@@ -16,13 +16,13 @@ const SubjectsList = () => {
   // Mapeamento de subjectId para nome e cor
   const subjectDetails = {
     portuguese: { name: 'Língua Portuguesa', color: '#FF6347' },
-    mathematics: { name: 'Matemática', color: '#FFD700' },
-    science: { name: 'Ciências', color: '#00FA9A' },
+    mathematics: { name: 'Matemática', color: '#eed171' },
+    science: { name: 'Ciências', color: '#5bcb77' },
     geography: { name: 'Geografia', color: '#00BFFF' },
     history: { name: 'História', color: '#DEB887' },
     art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)' },
-    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, red, white)' },
-    physicalEducation: { name: 'Educação Física', color: 'orange' }
+    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, #b7b9b9, red)' },
+    physicalEducation: { name: 'Educação Física', color: '#ed8900' }
   };
 
   useEffect(() => {

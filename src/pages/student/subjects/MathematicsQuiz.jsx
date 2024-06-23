@@ -25,7 +25,7 @@ const QuizQuestion = ({
 }) => (
   <div style={{ width: '760px' }}>
     <Typography variant="h6" style={{ marginTop: '3%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
-      {question.question}
+      {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
       <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
@@ -106,7 +106,7 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
   </CardContent>
 );
 
-const MathQuiz = () => {
+const MathematicsQuiz = () => {
   const { subjectId, selectedSubject } = useParams();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -256,4 +256,4 @@ const MathQuiz = () => {
   );
 };
 
-export default MathQuiz;
+export default MathematicsQuiz;

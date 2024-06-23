@@ -25,7 +25,7 @@ const QuizQuestion = ({
 }) => (
   <div style={{ width: '760px' }}>
     <Typography variant="h6" style={{ marginTop: '3%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
-      {question.question}
+      {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
       <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
