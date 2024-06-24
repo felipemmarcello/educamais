@@ -46,6 +46,7 @@ const QuizQuestion = ({
               key={index}
               value={answer}
               control={<Radio />}
+              sx= {{paddingBottom: '6px'}}
               label={
                 <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 0px', borderRadius: '3px' }}>
                   {answer}
