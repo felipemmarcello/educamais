@@ -297,12 +297,13 @@ function CreateUsers({ user, onClose }) {
                           }}
                         >
                           <MenuItem value="portuguese">Língua Portuguesa</MenuItem>
-                          <MenuItem value="math">Matemática</MenuItem>
+                          <MenuItem value="mathematics">Matemática</MenuItem>
                           <MenuItem value="science">Ciências</MenuItem>
                           <MenuItem value="geography">Geografia</MenuItem>
                           <MenuItem value="history">História</MenuItem>
                           <MenuItem value="art">Arte</MenuItem>
                           <MenuItem value="english">Língua Inglesa</MenuItem>
+                          <MenuItem value="physicalEducation">Educação Física</MenuItem>
                         </Select>
                         {errorFields.subject && <Typography color="error">Campo obrigatório</Typography>}
                       </FormControl>
