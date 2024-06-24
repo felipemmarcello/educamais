@@ -14,12 +14,13 @@ const roleDisplayNames = {
 
 const subjectsDisplayNames = {
     portuguese: 'Língua Portuguesa',
-    math: 'Matemática',
+    mathematics: 'Matemática',
     science: 'Ciências',
     geography: 'Geografia',
     history: 'História',
     art: 'Arte',
-    english: 'Língua Inglesa'
+    english: 'Língua Inglesa',
+    physicalEducation: 'Educação Física'
 };
 
 const yearDisplayNames = {
