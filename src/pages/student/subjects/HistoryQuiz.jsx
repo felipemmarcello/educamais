@@ -23,8 +23,8 @@ const QuizQuestion = ({
   currentQuestionIndex,
   totalQuestions
 }) => (
-  <div style={{ width: '760px' }}>
-    <Typography variant="h6" style={{ marginTop: '3%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
+  <div style={{ width: '720px', margin: '0, auto' }}>
+    <Typography variant="h6" style={{ marginTop: '5%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
       {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
@@ -47,7 +47,7 @@ const QuizQuestion = ({
               value={answer}
               control={<Radio />}
               label={
-                <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 10px', borderRadius: '3px' }}>
+                <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 0px', borderRadius: '3px' }}>
                   {answer}
                 </span>
               }
@@ -84,24 +84,18 @@ const QuizQuestion = ({
 );
 
 const QuizResults = ({ correctCount, incorrectCount }) => (
-  <CardContent style={{ marginTop: '35%'}}>
-    <Box sx={{ display: 'flex', flexDirection: 'column'}}>
-      <Box sx={{}}>
-        <Typography variant="h5" gutterBottom>Resultados</Typography>
-      </Box>
-      <Box display="flex" alignItems="center" mb={2} sx={{width: '100%', textAlign: 'center', paddingRight: '100px' }}>
-        <Typography variant="body1">Total de Perguntas: {correctCount + incorrectCount}</Typography>
-      </Box>
-      <Box display="flex" alignItems="center" mb={1} sx={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
-        <Typography variant="body1" sx={{ mr: 1 }}> Respostas: </Typography>
-        <CheckCircleIcon color="success" sx={{ mr: 1 }} />
-        <Typography variant="body1">{correctCount}</Typography>
-      </Box>
-      <Box display="flex" alignItems="center" sx={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
-        <Typography variant="body1" sx={{ mr: 1 }}> Respostas: </Typography>
-        <CancelIcon color="error" sx={{ mr: 1 }} />
-        <Typography variant="body1">{incorrectCount}</Typography>
-      </Box>
+  <CardContent sx={{ marginTop: '22%', width: '400px', height: '180px', textAlign: 'center', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+    <Typography variant="h5" gutterBottom>Resultados</Typography>
+    <Box display="flex" alignItems="center" mb={2}>
+      <Typography variant="body1">Total de Perguntas: {correctCount + incorrectCount}</Typography>
+    </Box>
+    <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
+      <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+      <Typography variant="body1">Respostas Corretas: {correctCount}</Typography>
+    </Box>
+    <Box display="flex" justifyContent="center" alignItems="center">
+      <CancelIcon color="error" sx={{ mr: 1 }} />
+      <Typography variant="body1">Respostas Incorretas: {incorrectCount}</Typography>
     </Box>
   </CardContent>
 );
@@ -120,7 +114,7 @@ const HistoryQuiz = () => {
   const [answered, setAnswered] = useState(false);
   const [subject, setSubject] = useState('');
 
-  const navigate = useNavigate(); // Adicionado o hook useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -187,7 +181,7 @@ const HistoryQuiz = () => {
 
     await addDoc(collection(db, "userHistoryResponses"), {
       userId: user.uid,
-      question: currentQuestion.question,
+      question: currentQuestion.question, 
       selectedAnswer,
       isCorrect: isCorrect,
       subject: currentQuestion.subject
@@ -215,13 +209,13 @@ const HistoryQuiz = () => {
     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '3%' }}>
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
-          <Typography variant="h2" gutterBottom>
+          <Typography variant="h3" gutterBottom>
             <TextWithColor subject="history" text={subject} />
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Container>
-            <Paper elevation={2} sx={{borderRadius: '5px'}}>
+            <Paper elevation={2} sx={{ borderRadius: '5px'}}>
               {quizFinished ? (
                 <QuizResults correctCount={correctCount} incorrectCount={incorrectCount} />
               ) : currentQuestion ? (
@@ -245,7 +239,7 @@ const HistoryQuiz = () => {
           </Container>
         </Box>
         {quizFinished && (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2}}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button variant="outlined" onClick={() => navigate(`/student/subjects/${subjectId}`)}>
               Voltar
             </Button>
