@@ -19,6 +19,12 @@ import SubjectList from './pages/student/subjects/SubjectsList.jsx';
 import SubjectsPageProfessor from './pages/professor/SubjectsPageProfessor.jsx';
 import SubjectsListProfessor from './pages/professor/SubjectsListProfessor.jsx';
 import QuizRouter from './pages/student/QuizRouter.jsx';
+import AdminEMLayout from './pages/AdminEducaMais/AdminEMLayout.jsx';
+import ProtectedAdminEMRoute from './pages/AdminEducaMais/ProtectedAdminEMRoute.jsx';
+import HomeAdminEM from './pages/AdminEducaMais/HomeAdminEM.jsx';
+import CreateSchool from './pages/AdminEducaMais/CreateSchool.jsx';
+import ListSchool from './pages/AdminEducaMais/ListSchool.jsx';
+
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -46,6 +52,13 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<LoginPage />} />
+
+                <Route path="/AdminEM" element={<ProtectedAdminEMRoute><AdminEMLayout /></ProtectedAdminEMRoute>}>
+                  <Route index element={<HomeAdminEM />} />
+                  <Route path="create-school" element={<CreateSchool />} />
+                  <Route path="list-school" element={<ListSchool />} />
+                </Route>
+
                 <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
                   <Route index element={<HomeAdmin />} />
                   <Route path="create-user" element={<CreateUser />} />

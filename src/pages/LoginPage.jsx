@@ -66,6 +66,9 @@ function LoginPage() {
         const role = userDoc.data().role;
 
         switch (role) {
+          case 'AdminEM':
+            navigate('/AdminEM');
+            break;
           case 'admin':
             navigate('/admin');
             break;
