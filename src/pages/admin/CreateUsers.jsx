@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { createUserWithEmailAndPassword, updatePassword } from 'firebase/auth';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase.js';
-import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { TextField, InputAdornment, Button, Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import UserContext from '../../contexts/UserContext.jsx';
 
 function CreateUsers({ user, onClose }) {
   const [name, setName] = useState('');
@@ -17,6 +18,10 @@ function CreateUsers({ user, onClose }) {
   const [status, setStatus] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
+  const [schoolId, setSchoolId] = useState('');
+  const [emailDomain, setEmailDomain] = useState('');
+
+  const { globalUid } = useContext(UserContext);
 
   useEffect(() => {
     if (user) {
@@ -30,6 +35,20 @@ function CreateUsers({ user, onClose }) {
       setSubject(user.subject || '');
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchAdminMasterDetails = async () => {
+      const userDoc = await getDoc(doc(db, 'users', globalUid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setSchoolId(userData.schoolId);
+        const emailParts = userData.email.split('@');
+        setEmailDomain(emailParts[1]);
+      }
+    };
+
+    fetchAdminMasterDetails();
+  }, [globalUid]);
 
   const handleRoleChange = (e) => {
     setRole(e.target.value);
@@ -87,12 +106,14 @@ function CreateUsers({ user, onClose }) {
 
     try {
       let uid;
+      const fullEmail = `${email}@${emailDomain}`;
       if (user) {
         uid = user.id;
         const userData = {
           name,
-          email,
+          email: fullEmail,
           role,
+          schoolId,
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
           ...(subject && { subject }),
@@ -103,13 +124,14 @@ function CreateUsers({ user, onClose }) {
           await updatePassword(auth.currentUser, password);
         }
       } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, fullEmail, password);
         uid = userCredential.user.uid;
 
         const userData = {
           name,
-          email,
+          email: fullEmail,
           role,
+          schoolId,
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
           ...(subject && { subject }),
@@ -205,6 +227,13 @@ function CreateUsers({ user, onClose }) {
                   required
                   error={!!errorFields.email}
                   helperText={errorFields.email && "E-mail já utilizado."}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        @{emailDomain}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
               {role !== 'admin' && (

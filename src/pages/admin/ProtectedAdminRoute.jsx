@@ -12,7 +12,8 @@ function ProtectedAdminRoute({ children }) {
       getDoc(userDocRef)
         .then((docSnap) => {
           if (docSnap.exists()) {
-            setIsAdmin(docSnap.data().role === 'admin');
+            const role = docSnap.data().role;
+            setIsAdmin(role === 'admin' || role === 'adminMaster');
           } else {
             console.log("Nenhum documento encontrado!");
             setIsAdmin(false);
@@ -27,8 +28,6 @@ function ProtectedAdminRoute({ children }) {
       setIsAdmin(false);
     }
   }, []);
-  
-
 
   if (isAdmin === null) {
     return <div>Carregando...</div>;

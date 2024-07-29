@@ -26,7 +26,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState(''); // Estado para rastrear a mensagem de erro
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +70,7 @@ function LoginPage() {
             navigate('/AdminEM');
             break;
           case 'admin':
+          case 'adminMaster': // Adicionado para permitir acesso a adminMaster
             navigate('/admin');
             break;
           case 'student':
@@ -87,7 +88,7 @@ function LoginPage() {
       }
     } catch (error) {
       console.error('Erro durante o login:', error);
-      setError('E-mail ou Senha incorreto. Tente novamente.'); // Define a mensagem de erro
+      setError('E-mail ou Senha incorreto. Tente novamente.');
     }
   }
 
@@ -113,45 +114,45 @@ function LoginPage() {
         border: `3px solid ${theme.palette.primary.main}`
       }}>
         <ThemeProvider theme={theme}>
-        <TextField
-          label="Login"
-          variant="outlined"
-          fullWidth
-          color= "primary"
-          backgroundColor= "#ffffff"
-          sx={{ mb: 2 }}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          label="Senha"
-          type={showPassword ? 'text' : 'password'}
-          variant="outlined"
-          color= "primary"
-          fullWidth
-          sx={{ mb: 2 }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleClickShowPassword}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-        {error && (
-          <Typography variant="caption" color="error" sx={{ mb: 0, fontSize: '12px' }}>
-            {error}
-          </Typography>
-        )}
+          <TextField
+            label="Login"
+            variant="outlined"
+            fullWidth
+            color="primary"
+            backgroundColor="#ffffff"
+            sx={{ mb: 2 }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Senha"
+            type={showPassword ? 'text' : 'password'}
+            variant="outlined"
+            color="primary"
+            fullWidth
+            sx={{ mb: 2 }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          {error && (
+            <Typography variant="caption" color="error" sx={{ mb: 0, fontSize: '12px' }}>
+              {error}
+            </Typography>
+          )}
         </ThemeProvider>
-        <Box sx= {{width: '100%', display: 'flex', justifyContent: 'flex-initial'}}>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-initial' }}>
           <ThemeProvider theme={theme}>
             <FormControlLabel
               control={
@@ -166,13 +167,13 @@ function LoginPage() {
           </ThemeProvider>
         </Box>
         <ThemeProvider theme={theme}>
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end'}}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
             <Button variant="contained" color="primary" onClick={handleSignIn}>Entrar</Button>
           </Box>
         </ThemeProvider>
 
       </Paper>
-      <img src={educaImage} alt="Educa" style={{ width: '35%'}} />
+      <img src={educaImage} alt="Educa" style={{ width: '35%' }} />
     </Box>
   );
 }

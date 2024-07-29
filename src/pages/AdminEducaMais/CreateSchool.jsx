@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { doc, setDoc, collection } from 'firebase/firestore';
-import { db } from '../../firebase/firebase.js';
-import { TextField, Grid, Button, Box, Typography, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, InputAdornment, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { db, auth } from '../../firebase/firebase.js';
+import { TextField, Grid, Button, Box, Typography, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, InputAdornment, MenuItem, Select, FormControl } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 function CreateSchool({ onClose }) {
@@ -12,6 +13,7 @@ function CreateSchool({ onClose }) {
   const [SchoolEmailDomain, setSchoolEmailDomain] = useState('');
   const [emailExtension, setEmailExtension] = useState('.com');
   const [adminEmailPrefix, setAdminEmailPrefix] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
   const [status, setStatus] = useState('');
@@ -44,6 +46,9 @@ function CreateSchool({ onClose }) {
     if (!adminEmailPrefix) {
       validationErrors.adminEmailPrefix = true;
     }
+    if (!adminPassword || adminPassword.length < 6) {
+      validationErrors.adminPassword = true;
+    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrorFields(validationErrors);
@@ -60,9 +65,22 @@ function CreateSchool({ onClose }) {
         adminEmail: `${adminEmailPrefix}@${SchoolEmailDomain}${emailExtension}`,
       };
 
-      // Create a new document with an auto-generated ID
       const newSchoolRef = doc(collection(db, 'schools'));
       await setDoc(newSchoolRef, schoolData);
+
+      const adminEmail = `${adminEmailPrefix}@${SchoolEmailDomain}${emailExtension}`;
+      const userCredential = await createUserWithEmailAndPassword(auth, adminEmail, adminPassword);
+      const uid = userCredential.user.uid;
+
+      const userData = {
+        email: adminEmail,
+        name: 'Administrador Master', // Nome do Admin Master
+        schoolName,
+        schoolId: newSchoolRef.id,
+        role: 'adminMaster'
+      };
+
+      await setDoc(doc(db, 'users', uid), userData);
 
       setOpenDialog(true);
     } catch (error) {
@@ -180,6 +198,20 @@ function CreateSchool({ onClose }) {
                   </InputAdornment>
                 ),
               }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Senha do Admin Master da Escola"
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              margin="normal"
+              required
+              error={!!errorFields.adminPassword}
+              helperText={errorFields.adminPassword && "Campo obrigatório e deve ter pelo menos 6 caracteres"}
             />
           </Grid>
         </Grid>

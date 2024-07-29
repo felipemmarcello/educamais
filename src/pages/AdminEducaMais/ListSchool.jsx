@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Divider, List, ListItem, ListItemText, Typography, IconButton, Dialog, DialogContent, DialogActions, DialogTitle, Button, Menu, MenuItem, TextField } from '@mui/material';
 import { Edit, Delete, ArrowUpward, ArrowDownward, Sort } from '@mui/icons-material';
 import { db } from '../../firebase/firebase.js';
-import { collection, query, onSnapshot, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, getDoc, deleteDoc, updateDoc, where, getDocs } from 'firebase/firestore';
 import Pagination from '@mui/material/Pagination';
 
 function ListSchool() {
@@ -63,6 +63,34 @@ function ListSchool() {
     const handleDeleteSchool = async () => {
         if (schoolToDelete) {
             try {
+                const collectionsToDeleteFrom = [
+                    'artQuestions',
+                    'englishQuestions',
+                    'geographyQuestions',
+                    'historyQuestions',
+                    'mathematicsQuestions',
+                    'physicalEducationQuestions',
+                    'portugueseQuestions',
+                    'scienceQuestions',
+                    'userGeographyResponses',
+                    'userMathematicsResponses',
+                    'userPortugueseResponses',
+                    'userScienceResponses',
+                    'userArtResponses',
+                    'userPhysicalEducationResponses',
+                    'userEnglishResponses',
+                    'userArtResponses',
+                    'users'
+                ];
+
+                for (const collectionName of collectionsToDeleteFrom) {
+                    const q = query(collection(db, collectionName), where('schoolId', '==', schoolToDelete));
+                    const querySnapshot = await getDocs(q);
+                    querySnapshot.forEach(async (doc) => {
+                        await deleteDoc(doc.ref);
+                    });
+                }
+
                 await deleteDoc(doc(db, 'schools', schoolToDelete));
                 handleDeleteDialogClose();
             } catch (error) {

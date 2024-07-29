@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Divider, List, ListItem, ListItemText, Typography, IconButton, Dialog, DialogContent, DialogActions, DialogTitle, Button, Menu, MenuItem, TextField } from '@mui/material';
 import { Edit, Delete, ArrowUpward, ArrowDownward, Sort } from '@mui/icons-material';
-import { db } from '../../firebase/firebase';
+import { db, auth } from '../../firebase/firebase';
 import { collection, query, onSnapshot, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import CreateUsers from './CreateUsers.jsx';
 import Pagination from '@mui/material/Pagination';
+import UserContext from '../../contexts/UserContext.jsx';
 
 const roleDisplayNames = {
     admin: 'Administrador',
@@ -42,26 +43,48 @@ function ListUsers() {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const usersPerPage = 5;
+    const { globalUid } = useContext(UserContext); // Acesse o contexto do usuário conectado
+    const [userDomain, setUserDomain] = useState('');
+    const [userSchoolId, setUserSchoolId] = useState('');
 
     useEffect(() => {
-        const q = query(collection(db, 'users'));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const usersArray = [];
-            querySnapshot.forEach((doc) => {
-                const userData = {
-                    id: doc.id,
-                    ...doc.data(),
-                    role: roleDisplayNames[doc.data().role] || doc.data().role
-                };
-                usersArray.push(userData);
-            });
-            setUsers(usersArray);
-        }, (error) => {
-            console.error('Erro ao buscar usuários:', error);
-        });
+        if (globalUid) {
+            const fetchUserData = async () => {
+                const userDoc = await getDoc(doc(db, 'users', globalUid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setUserDomain(userData.email.split('@')[1]);
+                    setUserSchoolId(userData.schoolId);
+                }
+            };
+            fetchUserData();
+        }
+    }, [globalUid]);
 
-        return () => unsubscribe();
-    }, []);
+    useEffect(() => {
+        if (userDomain && userSchoolId) {
+            const q = query(collection(db, 'users'));
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const usersArray = [];
+                querySnapshot.forEach((doc) => {
+                    const userData = {
+                        id: doc.id,
+                        ...doc.data(),
+                        role: roleDisplayNames[doc.data().role] || doc.data().role
+                    };
+                    const userEmailDomain = userData.email.split('@')[1];
+                    if (userEmailDomain === userDomain || userData.schoolId === userSchoolId) {
+                        usersArray.push(userData);
+                    }
+                });
+                setUsers(usersArray);
+            }, (error) => {
+                console.error('Erro ao buscar usuários:', error);
+            });
+
+            return () => unsubscribe();
+        }
+    }, [userDomain, userSchoolId]);
 
     const handleEditClick = async (userId) => {
         const userDoc = await getDoc(doc(db, 'users', userId));
@@ -132,9 +155,10 @@ function ListUsers() {
     });
 
     const filteredUsers = sortedUsers.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+        (user.role !== 'AdminEM' && user.role !== 'adminMaster') &&
+        ((user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.role && user.role.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())))
     );
 
     const getSortDescription = () => {
@@ -147,7 +171,7 @@ function ListUsers() {
             asc: 'crescente',
             desc: 'decrescente'
         };
-        return `${criteriaMap[sortCriteria]}`;
+        return `${criteriaMap[sortCriteria]} - ${orderMap[sortOrder]}`;
     };
 
     const handleChangePage = (event, value) => {
@@ -166,7 +190,7 @@ function ListUsers() {
                     <Typography sx={{fontSize: '15px'}}>
                         {getSortDescription()}
                     </Typography>
-                    <IconButton color="primary" onClick={handleSortClick} sx={{}}>
+                    <IconButton color="primary" onClick={handleSortClick}>
                         <Sort />
                     </IconButton>
                 </div>

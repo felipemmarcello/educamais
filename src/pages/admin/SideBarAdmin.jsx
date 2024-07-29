@@ -17,6 +17,7 @@ function SideBarAdmin() {
 
   const roleNames = {
     admin: 'Administrador',
+    adminMaster: 'Administrador Master'
   };
 
   useEffect(() => {
@@ -46,6 +47,7 @@ function SideBarAdmin() {
   };
 
   const formatUserName = (name) => {
+    if (!name) return '';
     const nameParts = name.split(' ');
     const firstName = nameParts[0];
     return `${firstName}`;
@@ -94,8 +96,8 @@ function SideBarAdmin() {
       }}
     >
       <List sx={{ flex: 1, padding: 0, backgroundColor: '#5589c4' }}>
-      <ListItem sx={{ backgroundColor: '#5589c4', borderBottom: '1px solid #dedede', padding: 3, borderColor: 'black' }}>
-          <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main', marginRight: 2 }}>{user.name[0]}</Avatar>
+        <ListItem sx={{ backgroundColor: '#5589c4', borderBottom: '1px solid #dedede', padding: 3, borderColor: 'black' }}>
+          <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main', marginRight: 2 }}>{user.name && user.name[0]}</Avatar>
           <ListItemText 
             primary={
               <Typography variant="h6" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA' }}>
