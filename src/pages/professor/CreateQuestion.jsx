@@ -16,6 +16,17 @@ const subjectCollections = {
   physicalEducation: 'physicalEducationQuestions',
 };
 
+const subjectDetails = {
+  portuguese: { name: 'Língua Portuguesa' },
+  mathematics: { name: 'Matemática' },
+  science: { name: 'Ciências' },
+  geography: { name: 'Geografia' },
+  history: { name: 'História' },
+  art: { name: 'Arte' },
+  english: { name: 'Língua Inglesa' },
+  physicalEducation: { name: 'Educação Física' }
+};
+
 function CreateQuestion({ onClose }) {
   const [subject, setSubject] = useState('');
   const [subjectField, setSubjectField] = useState('');
@@ -23,9 +34,11 @@ function CreateQuestion({ onClose }) {
   const [answers, setAnswers] = useState(['', '', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [status, setStatus] = useState('');
+  const [schoolYear, setSchoolYear] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
   const [schoolId, setSchoolId] = useState('');
+  const [userSubject, setUserSubject] = useState('');
 
   const { globalUid } = useContext(UserContext);
 
@@ -35,6 +48,7 @@ function CreateQuestion({ onClose }) {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         setSchoolId(userData.schoolId);
+        setUserSubject(userData.subject);
       }
     };
 
@@ -66,6 +80,9 @@ function CreateQuestion({ onClose }) {
     if (!correctAnswer) {
       validationErrors.correctAnswer = true;
     }
+    if (!schoolYear) {
+      validationErrors.schoolYear = true;
+    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrorFields(validationErrors);
@@ -79,6 +96,7 @@ function CreateQuestion({ onClose }) {
         answers,
         correctAnswer: answers[correctAnswer],
         schoolId,
+        schoolYear,
       };
 
       const collectionName = subjectCollections[subject];
@@ -127,14 +145,7 @@ function CreateQuestion({ onClose }) {
               label="Matéria"
               onChange={(e) => setSubject(e.target.value)}
             >
-              <MenuItem value="portuguese">Língua Portuguesa</MenuItem>
-              <MenuItem value="mathematics">Matemática</MenuItem>
-              <MenuItem value="science">Ciências</MenuItem>
-              <MenuItem value="geography">Geografia</MenuItem>
-              <MenuItem value="history">História</MenuItem>
-              <MenuItem value="art">Arte</MenuItem>
-              <MenuItem value="english">Língua Inglesa</MenuItem>
-              <MenuItem value="physicalEducation">Educação Física</MenuItem>
+              <MenuItem value={userSubject}>{subjectDetails[userSubject]?.name}</MenuItem>
             </Select>
             {errorFields.subject && <Typography color="error">Campo obrigatório</Typography>}
           </FormControl>
@@ -147,7 +158,31 @@ function CreateQuestion({ onClose }) {
                     Questão 
                 </Typography>
             </div>
+
             <Grid container spacing={0} sx= {{paddingTop: '-30px'}}>
+              <Grid item xs={2.5}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="school-year-select-label">Ano Escolar</InputLabel>
+                  <Select
+                    labelId="school-year-select-label"
+                    id="school-year-select"
+                    value={schoolYear}
+                    label="Ano Escolar"
+                    onChange={(e) => setSchoolYear(e.target.value)}
+                    sx={{ mb: 0 }}
+                  >
+                    <MenuItem value="6">6º ano</MenuItem>
+                    <MenuItem value="7">7º ano</MenuItem>
+                    <MenuItem value="8">8º ano</MenuItem>
+                    <MenuItem value="9">9º ano</MenuItem>
+                  </Select>
+                  {errorFields.schoolYear && <Typography color="error">Campo obrigatório</Typography>}
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={0.5}>
+              </Grid>
+
               <Grid item xs={7.8}>
                 <TextField
                   fullWidth
@@ -177,6 +212,7 @@ function CreateQuestion({ onClose }) {
                   sx={{ mb: 0 }}
                 />
               </Grid>
+
               {answers.map((answer, index) => (
                 <Grid item xs={12} key={index}>
                   <TextField
