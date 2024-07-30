@@ -120,6 +120,15 @@ function SideBarProfessor() {
         </ListItem>
 
         <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/professor/create-question">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <MenuBookIcon />
+            </ListItemIcon>
+            <ListItemText primary="Criar Matéria" sx={{ color: '#FFFAFA'}} />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/professor/subjects">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
               <MenuBookIcon />

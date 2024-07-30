@@ -17,7 +17,7 @@ function SideBarAdmin() {
 
   const roleNames = {
     admin: 'Administrador',
-    adminMaster: 'Administrador Master'
+    adminMaster: 'Admin Master'
   };
 
   useEffect(() => {

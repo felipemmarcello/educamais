@@ -24,6 +24,7 @@ import ProtectedAdminEMRoute from './pages/AdminEducaMais/ProtectedAdminEMRoute.
 import HomeAdminEM from './pages/AdminEducaMais/HomeAdminEM.jsx';
 import CreateSchool from './pages/AdminEducaMais/CreateSchool.jsx';
 import ListSchool from './pages/AdminEducaMais/ListSchool.jsx';
+import CreateQuestion from './pages/professor/CreateQuestion.jsx';
 
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
 
                 <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>
                   <Route index element={<HomeProfessor />} />
+                  <Route path="create-question" element={<CreateQuestion />} />
                   <Route path="subjects" element={<SubjectsPageProfessor />} />
                   <Route path="subjects/:subjectId" element={<SubjectsListProfessor />} />
                 </Route>

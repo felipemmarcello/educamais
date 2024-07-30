@@ -74,7 +74,7 @@ function CreateSchool({ onClose }) {
 
       const userData = {
         email: adminEmail,
-        name: 'Administrador Master', // Nome do Admin Master
+        name: 'Admin Master', // Nome do Admin Master
         schoolName,
         schoolId: newSchoolRef.id,
         role: 'adminMaster'
