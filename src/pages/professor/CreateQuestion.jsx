@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { doc, setDoc, collection, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebase.js';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, InputAdornment } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -27,14 +27,14 @@ const subjectDetails = {
   physicalEducation: { name: 'Educação Física' }
 };
 
-function CreateQuestion({ onClose }) {
-  const [subject, setSubject] = useState('');
-  const [subjectField, setSubjectField] = useState('');
-  const [question, setQuestion] = useState('');
-  const [answers, setAnswers] = useState(['', '', '', '', '']);
-  const [correctAnswer, setCorrectAnswer] = useState('');
+function CreateQuestion({ question, onClose }) {
+  const [subject, setSubject] = useState(question ? question.subject : '');
+  const [subjectField, setSubjectField] = useState(question ? question.subject : '');
+  const [questionText, setQuestionText] = useState(question ? question.question : '');
+  const [answers, setAnswers] = useState(question ? question.answers : ['', '', '', '', '']);
+  const [correctAnswer, setCorrectAnswer] = useState(question ? question.answers.indexOf(question.correctAnswer) : '');
   const [status, setStatus] = useState('');
-  const [schoolYear, setSchoolYear] = useState('');
+  const [schoolYear, setSchoolYear] = useState(question ? question.schoolYear : '');
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
   const [schoolId, setSchoolId] = useState('');
@@ -71,13 +71,13 @@ function CreateQuestion({ onClose }) {
     if (!subjectField) {
       validationErrors.subjectField = true;
     }
-    if (!question) {
+    if (!questionText) {
       validationErrors.question = true;
     }
     if (answers.some(answer => !answer)) {
       validationErrors.answers = true;
     }
-    if (!correctAnswer) {
+    if (!correctAnswer && correctAnswer !== 0) {
       validationErrors.correctAnswer = true;
     }
     if (!schoolYear) {
@@ -92,7 +92,7 @@ function CreateQuestion({ onClose }) {
     try {
       const questionData = {
         subject: subjectField,  // Alterado para salvar subjectField como subject
-        question,
+        question: questionText,
         answers,
         correctAnswer: answers[correctAnswer],
         schoolId,
@@ -100,13 +100,20 @@ function CreateQuestion({ onClose }) {
       };
 
       const collectionName = subjectCollections[subject];
-      const newQuestionRef = doc(collection(db, collectionName));
-      await setDoc(newQuestionRef, questionData);
+      if (question) {
+        // Update existing question
+        const questionRef = doc(db, collectionName, question.id);
+        await updateDoc(questionRef, questionData);
+      } else {
+        // Create new question
+        const newQuestionRef = doc(collection(db, collectionName));
+        await setDoc(newQuestionRef, questionData);
+      }
 
       setOpenDialog(true);
     } catch (error) {
-      console.error('Error creating question:', error);
-      setStatus('Erro ao criar a questão. Por favor, tente novamente.');
+      console.error('Error creating/updating question:', error);
+      setStatus('Erro ao salvar a questão. Por favor, tente novamente.');
     }
   };
 
@@ -120,14 +127,14 @@ function CreateQuestion({ onClose }) {
     <div>
       <div style={{ display: 'flex', paddingTop: '5%', paddingLeft: '12%' }}>
         <Typography variant="h3" sx={{ mb: 2 }}>
-          Criar Questão
+          {question ? 'Editar Questão' : 'Criar Questão'}
         </Typography>
       </div>
       <Divider sx={{ width: '80%', margin: 'auto', height: '50%' }} />
       <Box sx={{ maxWidth: '70%', margin: 'auto', bgcolor: '#fff', paddingTop: '2.5%' }}>
         <div style={{ display: 'flex' }}>
           <Typography variant="h6" sx={{ mb: 0 }}>
-            Selecione:
+            Selecione a matéria:
           </Typography>
         </div>
         <Box sx={{ display: 'flex', mb: 1 }}>
@@ -203,8 +210,8 @@ function CreateQuestion({ onClose }) {
                   fullWidth
                   variant="outlined"
                   label="Enunciado"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
                   margin="normal"
                   required
                   error={!!errorFields.question}
@@ -259,7 +266,7 @@ function CreateQuestion({ onClose }) {
                 onClick={handleSaveQuestion}
                 sx={{ mt: 2, width: '100px', marginTop: '4%', marginBottom: '3%', marginLeft: '2%' }}
               >
-                Criar
+                {question ? 'Salvar' : 'Criar'}
               </Button>
             </div>
             {status && (
@@ -272,7 +279,7 @@ function CreateQuestion({ onClose }) {
       </Box>
 
       <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Questão criada com sucesso!</DialogTitle>
+        <DialogTitle>{question ? 'Questão atualizada com sucesso!' : 'Questão criada com sucesso!'}</DialogTitle>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <DialogContent style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <DialogContentText>
