@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -46,7 +46,7 @@ const QuizQuestion = ({
               key={index}
               value={answer}
               control={<Radio />}
-              sx= {{paddingBottom: '6px'}}
+              sx={{ paddingBottom: '6px' }}
               label={
                 <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 0px', borderRadius: '3px' }}>
                   {answer}
@@ -114,13 +114,21 @@ const PortugueseQuiz = () => {
   const [quizFinished, setQuizFinished] = useState(false);
   const [answered, setAnswered] = useState(false);
   const [subject, setSubject] = useState('');
+  const [schoolYear, setSchoolYear] = useState('');
+  const [schoolId, setSchoolId] = useState('');
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setSchoolYear(userData.schoolYear);
+          setSchoolId(userData.schoolId);
+        }
       } else {
         setUser(null);
       }
@@ -185,7 +193,9 @@ const PortugueseQuiz = () => {
       question: currentQuestion.question, 
       selectedAnswer,
       isCorrect: isCorrect,
-      subject: currentQuestion.subject
+      subject: currentQuestion.subject,
+      schoolYear: schoolYear,
+      schoolId: schoolId
     });
 
     setAnswered(true);

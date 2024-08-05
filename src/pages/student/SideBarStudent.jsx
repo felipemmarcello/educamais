@@ -128,6 +128,15 @@ function SideBarStudent() {
           </ListItemButton>
         </ListItem>
 
+        <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/student/dashboard">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <MenuBookIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
+          </ListItemButton>
+        </ListItem>
+
       </List>
 
       <Box sx={{ p: 1, borderTop: '1px solid #dedede', backgroundColor: '#336ca5', borderColor: 'black' }}>

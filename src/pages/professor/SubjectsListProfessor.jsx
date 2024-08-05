@@ -33,7 +33,8 @@ const SubjectsListProfessor = () => {
     history: { name: 'História', color: '#DEB887' },
     art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)' },
     english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, #b7b9b9, red)' },
-    physicalEducation: { name: 'Educação Física', color: '#ed8900' }
+    physicalEducation: { name: 'Educação Física', color: '#ed8900' },
+    religion: { name: 'Ensino Religioso', color: '#aea881' }
   };
 
   useEffect(() => {

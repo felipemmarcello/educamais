@@ -101,7 +101,7 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
   </CardContent>
 );
 
-const PhysicalEducationQuiz = () => {
+const ReligionQuiz = () => {
   const { subjectId, selectedSubject } = useParams();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -188,7 +188,7 @@ const PhysicalEducationQuiz = () => {
       setIncorrectCount(incorrectCount + 1);
     }
 
-    await addDoc(collection(db, "userPhysicalEducationResponses"), {
+    await addDoc(collection(db, "userReligionResponses"), {
       userId: user.uid,
       question: currentQuestion.question, 
       selectedAnswer,
@@ -221,7 +221,7 @@ const PhysicalEducationQuiz = () => {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
           <Typography variant="h3" gutterBottom>
-            <TextWithColor subject="physicalEducation" text={subject} />
+            <TextWithColor subject="religion" text={subject} />
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -261,4 +261,4 @@ const PhysicalEducationQuiz = () => {
   );
 };
 
-export default PhysicalEducationQuiz;
+export default ReligionQuiz;

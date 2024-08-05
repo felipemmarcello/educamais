@@ -25,6 +25,7 @@ import HomeAdminEM from './pages/AdminEducaMais/HomeAdminEM.jsx';
 import CreateSchool from './pages/AdminEducaMais/CreateSchool.jsx';
 import ListSchool from './pages/AdminEducaMais/ListSchool.jsx';
 import CreateQuestion from './pages/professor/CreateQuestion.jsx';
+import Dashboard from './pages/student/dashboard/dashboard.jsx';
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                   <Route path="subjects" element={<Subjects />} />
                   <Route path="subjects/:subjectId" element={<SubjectList />} />
                   <Route path="subjects/:subjectId/:selectedSubject" element={<QuizRouter />} />
+                  <Route path="dashboard" element={<Dashboard />} />
                 </Route>
 
                 <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>

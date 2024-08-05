@@ -13,6 +13,7 @@ import historyIcon from '../../images/historyIcon.png';
 import artIcon from '../../images/artIcon.png';
 import englishIcon from '../../images/englishIcon.png';
 import physicalEducationIcon from '../../images/physicalEducationIcon.png';
+import religionIcon from '../../images/religionIcon.png';
 
 const SubjectsPageProfessor = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const SubjectsPageProfessor = () => {
     art: { name: 'Arte', icon: artIcon },
     english: { name: 'Língua Inglesa', icon: englishIcon },
     physicalEducation: { name: 'Educação Física', icon: physicalEducationIcon },
+    religion: { name: 'Ensino Religioso', icon: religionIcon },
   };
 
   return (
