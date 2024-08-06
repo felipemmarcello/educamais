@@ -1,10 +1,11 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
+    chunkSizeWarningLimit: 1500, // Ajuste o limite de aviso do chunk
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -13,8 +14,6 @@ export default defineConfig({
           }
         }
       }
-    },
-    chunkSizeWarningLimit: 1000, // Aumentar o limite de aviso de tamanho do chunk para 1000kB
+    }
   }
-},
-)
+});
