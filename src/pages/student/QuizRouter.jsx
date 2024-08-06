@@ -8,6 +8,7 @@ import EnglishQuiz from './subjects/EnglishQuiz.jsx';
 import GeographyQuiz from './subjects/GeographyQuiz.jsx';
 import HistoryQuiz from './subjects/HistoryQuiz.jsx';
 import PhysicalEducationQuiz from './subjects/PhysicalEducationQuiz.jsx'
+import ReligionQuiz from './subjects/ReligionQuiz.jsx';
 // Importar outros quizzes conforme necessário
 
 const QuizRouter = () => {
@@ -30,6 +31,8 @@ const QuizRouter = () => {
       return <HistoryQuiz subjectId={subjectId} selectedSubject={selectedSubject} />;
     case 'physicalEducation':
       return <PhysicalEducationQuiz subjectId={subjectId} selectedSubject={selectedSubject} />;
+      case 'religion':
+        return <ReligionQuiz subjectId={subjectId} selectedSubject={selectedSubject} />;
       
     // Adicionar outros casos para outras matérias
     default:

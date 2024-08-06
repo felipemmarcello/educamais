@@ -21,7 +21,8 @@ const subjectsDisplayNames = {
     history: 'História',
     art: 'Arte',
     english: 'Língua Inglesa',
-    physicalEducation: 'Educação Física'
+    physicalEducation: 'Educação Física',
+    religion: 'Ensino Religioso'
 };
 
 const yearDisplayNames = {

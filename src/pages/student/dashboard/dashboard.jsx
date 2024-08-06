@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { db } from '../../../firebase/firebase.js';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { Container, Typography, Box, Grid, Paper } from '@mui/material';
+import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer } from 'recharts';
 import UserContext from '../../../contexts/UserContext.jsx';
 import portugueseIcon from '../../../images/portugueseIcon.png';
 import mathematicsIcon from '../../../images/mathematicsIcon.png';
@@ -67,8 +68,6 @@ const Dashboard = () => {
         const subjectResponses = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('userId', '==', globalUid)));
         responsesData[subject] = {
           total: subjectResponses.docs.length,
-          correct: subjectResponses.docs.filter(doc => doc.data().isCorrect).length,
-          incorrect: subjectResponses.docs.filter(doc => !doc.data().isCorrect).length,
           uniqueQuestions: new Set(subjectResponses.docs.map(doc => doc.data().question)).size
         };
       }
@@ -84,16 +83,11 @@ const Dashboard = () => {
       let calculatedStats = {};
       for (let subject of subjects) {
         const total = totalQuestions[subject] || 0;
-        const answered = answeredQuestions[subject]?.total || 0;
-        const correct = answeredQuestions[subject]?.correct || 0;
-        const incorrect = answeredQuestions[subject]?.incorrect || 0;
-        const uniqueAnswered = answeredQuestions[subject]?.uniqueQuestions || 0;
+        const answered = answeredQuestions[subject]?.uniqueQuestions || 0; // Use unique questions for answered
         calculatedStats[subject] = {
           total,
           answered,
-          correct,
-          incorrect,
-          remaining: total - uniqueAnswered
+          remaining: total - answered
         };
       }
       setStats(calculatedStats);
@@ -103,6 +97,44 @@ const Dashboard = () => {
       calculateStats();
     }
   }, [totalQuestions, answeredQuestions]);
+
+  const renderPieChart = (subject) => {
+    const data = [
+      { name: 'Respondidas', value: stats[subject]?.answered || 0 },
+      { name: 'Restantes', value: stats[subject]?.remaining || 0 }
+    ];
+    const colors = ['#00C49F', '#FFBB28'];
+
+    return (
+      <PieChart width={300} height={200}>
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    );
+  };
+
+  const renderBarChart = () => {
+    const data = subjects.map(subject => ({
+      name: subjectDetails[subject].name,
+      Total: stats[subject]?.total || 0,
+      Respondidas: stats[subject]?.answered || 0
+    }));
+
+    return (
+      <BarChart width={600} height={300} data={data}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="Total" fill="#8884d8" />
+        <Bar dataKey="Respondidas" fill="#82ca9d" />
+      </BarChart>
+    );
+  };
 
   return (
     <Container>
@@ -118,16 +150,25 @@ const Dashboard = () => {
                   <Typography variant="h6" gutterBottom style={{ background: subjectDetails[subject].color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginRight: '8px' }}>
                     {subjectDetails[subject].name}
                   </Typography>
-                  <img src={subjectDetails[subject].icon} alt={`${subjectDetails[subject].name} icon`} style={{ width: '25px' }} />
+                  <img src={subjectDetails[subject].icon} alt={`${subjectDetails[subject].name} icon`} style={{ marginBottom: '2.45%', width: '25px' }} />
                 </Box>
-                <Typography variant="body1">Total de questões: {stats[subject]?.total || 0}</Typography>
+                <Typography variant="body1">Questões diferentes: {stats[subject]?.total || 0}</Typography>
                 <Typography variant="body1">Respondidas: {stats[subject]?.answered || 0}</Typography>
-                <Typography variant="body1">Corretas: {stats[subject]?.correct || 0}</Typography>
-                <Typography variant="body1">Incorretas: {stats[subject]?.incorrect || 0}</Typography>
                 <Typography variant="body1">Restantes: {stats[subject]?.remaining || 0}</Typography>
+                {renderPieChart(subject)}
               </Paper>
             </Grid>
           ))}
+          <Grid item xs={12}>
+            <Paper elevation={3} sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Comparação de Questões Totais vs. Respondidas
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                {renderBarChart()}
+              </ResponsiveContainer>
+            </Paper>
+          </Grid>
         </Grid>
       </Box>
     </Container>

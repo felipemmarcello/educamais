@@ -14,6 +14,7 @@ const subjectCollections = {
   art: 'artQuestions',
   english: 'englishQuestions',
   physicalEducation: 'physicalEducationQuestions',
+  religion: 'religionQuestions'
 };
 
 const subjectDetails = {
@@ -24,7 +25,8 @@ const subjectDetails = {
   history: { name: 'História' },
   art: { name: 'Arte' },
   english: { name: 'Língua Inglesa' },
-  physicalEducation: { name: 'Educação Física' }
+  physicalEducation: { name: 'Educação Física' },
+  religion: {name: 'Ensino Religioso'},
 };
 
 function CreateQuestion({ question, onClose }) {
@@ -91,7 +93,7 @@ function CreateQuestion({ question, onClose }) {
 
     try {
       const questionData = {
-        subject: subjectField,  // Alterado para salvar subjectField como subject
+        subject: subjectField, 
         question: questionText,
         answers,
         correctAnswer: answers[correctAnswer],
