@@ -28,6 +28,7 @@ const CreateSchool = lazy(() => import('./pages/AdminEducaMais/CreateSchool.jsx'
 const ListSchool = lazy(() => import('./pages/AdminEducaMais/ListSchool.jsx'));
 const CreateQuestion = lazy(() => import('./pages/professor/CreateQuestion.jsx'));
 const Dashboard = lazy(() => import('./pages/student/dashboard/dashboard.jsx'));
+const DashboardProfessor = lazy(() => import('./pages/professor/DashboardProfessor.jsx'))
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -82,6 +83,7 @@ function App() {
                     <Route path="create-question" element={<CreateQuestion />} />
                     <Route path="subjects" element={<SubjectsPageProfessor />} />
                     <Route path="subjects/:subjectId" element={<SubjectsListProfessor />} />
+                    <Route path="dashboard" element={<DashboardProfessor />} />
                   </Route>
                 </Routes>
               </Suspense>
