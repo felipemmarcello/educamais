@@ -38,6 +38,8 @@ const DashboardProfessor = () => {
   const [studentResponseCounts, setStudentResponseCounts] = useState([]);
   const [page, setPage] = useState(1);
   const [studentPage, setStudentPage] = useState(1);
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [studentPerformance, setStudentPerformance] = useState({ correct: 0, incorrect: 0 });
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -124,6 +126,36 @@ const DashboardProfessor = () => {
     fetchAllResponsesForSubject();
   }, [schoolId, students, subject]);
 
+  const fetchStudentPerformance = async (studentId, contentName) => {
+    if (!studentId || !contentName || !subject) return { correct: 0, incorrect: 0 };
+
+    const responsesSnapshot = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('userId', '==', studentId), where('subject', '==', contentName)));
+    let correct = 0;
+    let incorrect = 0;
+
+    responsesSnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.isCorrect) {
+        correct += 1;
+      } else {
+        incorrect += 1;
+      }
+    });
+
+    return { correct, incorrect };
+  };
+
+  useEffect(() => {
+    const updatePerformance = async () => {
+      if (selectedStudent && selectedContent) {
+        const performance = await fetchStudentPerformance(selectedStudent, selectedContent);
+        setStudentPerformance(performance);
+      }
+    };
+
+    updatePerformance();
+  }, [selectedStudent, selectedContent]);
+
   const CustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
     const RADIAN = Math.PI / 180;
     const radius = 25 + innerRadius + (outerRadius - innerRadius);
@@ -175,16 +207,38 @@ const DashboardProfessor = () => {
     );
   };
 
-  const groupedResponses = responses.reduce((acc, response) => {
-    const student = students.find(student => student.id === response.userId);
-    if (student) {
-      if (!acc[student.name]) {
-        acc[student.name] = { ...student, count: 0 };
-      }
-      acc[student.name].count += 1;
-    }
-    return acc;
-  }, {});
+  const renderStudentPerformanceChart = () => {
+    const data = [
+      { name: 'Acertos', value: studentPerformance.correct },
+      { name: 'Erros', value: studentPerformance.incorrect }
+    ];
+
+    const colors = ['#1cb66c', '#db3539'];
+
+    return (
+      <ResponsiveContainer width="100%" height={240}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={50}
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
+            labelLine={false}
+            label={CustomizedLabel}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Pie>
+          <Tooltip contentStyle={{ fontFamily: 'Arial', fontSize: 12 }} />
+          <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontFamily: 'Arial', fontSize: 14 }} />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -199,13 +253,17 @@ const DashboardProfessor = () => {
 
   return (
     <Container>
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" gutterBottom textAlign="center" sx={{ paddingTop: '2%' }}>
-          Dashboard Professor
-        </Typography>
+      <Box sx={{ mb: 4 }}>
 
-        <Divider sx={{ marginY: 5 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+        <div style={{ display: 'flex', paddingTop: '5%', paddingLeft: '12%' }}>
+          <Typography variant="h3" sx={{ mb: 2 }}>
+            Dashboard
+          </Typography>
+        </div>
+
+        <Divider sx={{ width: '80%', margin: 'auto', height: '50%' }} />
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, paddingTop: '3.5%', paddingBottom: '1.5%' }}>
           <Typography variant="h4" gutterBottom style={{ marginRight: '14px' }}>
             {`${subjectDetails[subject]?.name || subject}`}
           </Typography>
@@ -214,8 +272,8 @@ const DashboardProfessor = () => {
           )}
         </Box>
         
-        <Grid container spacing={4} sx={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          <Grid item sx= {{ width: '330px'}}>
+        <Grid container spacing={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Grid item sx={{ width: '330px' }}>
             <Paper elevation={2} sx={{ p: 2, minHeight: '305px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <Box>
                 {paginatedContents.map((content, index) => (
@@ -224,12 +282,12 @@ const DashboardProfessor = () => {
                       {`Conteúdo: ${content.name}`}
                     </Typography>
                     <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '3%' }}>
-                      {`Quantidade de Perguntas: ${content.questionsCount}`}
+                      {`Quantidade de Questões: ${content.questionsCount}`}
                     </Typography>
                   </Box>
                 ))}
               </Box>
-              <Pagination 
+              <Pagination
                 count={Math.ceil(contents.length / itemsPerPage)}
                 page={page}
                 onChange={handleChangePage}
@@ -238,91 +296,129 @@ const DashboardProfessor = () => {
             </Paper>
           </Grid>
 
-          <Grid item sx= {{ width: '330px'}}>
+          <Grid item sx={{ width: '330px' }}>
             <Paper elevation={2} sx={{ p: 2, minHeight: '305px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <Box>
+              <Box>
                 {paginatedStudentResponses.map((student, index) => (
-                    <Box key={index} sx={{ marginTop: '3%' }}>
+                  <Box key={index} sx={{ marginTop: '3%' }}>
                     <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 14 }}>
-                        {`${student.name}`}
+                      {`${student.name}`}
                     </Typography>
                     <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '3%' }}>
-                        {`Respostas Totais: ${student.count}`}
+                      {`Respostas Totais: ${student.count}`}
                     </Typography>
-                    </Box>
+                  </Box>
                 ))}
-                </Box>
-                <Pagination 
+              </Box>
+              <Pagination
                 count={Math.ceil(studentResponseCounts.length / itemsPerPage)}
                 page={studentPage}
                 onChange={handleStudentPageChange}
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}
-                />
-            </Paper>
-        </Grid>
-
-          <Grid item sx= {{width: '330px'}}>
-            <Paper elevation={2} sx={{ p: 2, minHeight: '305px' }}>
-              
+              />
             </Paper>
           </Grid>
 
-          <Grid item xs={6}>
-            <Paper elevation={2} sx={{ p: 2 }}>
-              <FormControl fullWidth>
-                <InputLabel id="select-content-label">Selecione o Conteúdo</InputLabel>
+          <Grid item xs={5.4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <FormControl sx={{ marginBottom: '4%' }}>
+              <InputLabel id="select-content-label">Selecione o Conteúdo</InputLabel>
+              <Select
+                labelId="select-content-label"
+                id="select-content"
+                value={selectedContent}
+                label="Selecione o Conteúdo"
+                sx={{ width: '300px'}}
+                onChange={(e) => setSelectedContent(e.target.value)}
+              >
+                {contents.map((content, index) => (
+                  <MenuItem key={index} value={content.name}>
+                    {content.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Paper elevation={2} sx={{ p: 2, width: '100%' }}>
+              <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, marginBottom: '5%' }}>
+                Quem respondeu?
+              </Typography>
+              <Box sx={{ mt: 4 }}>
+                {renderResponsesChart()}
+                <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, mt: 4 }}>
+                  Estudantes que responderam
+                </Typography>
+                <Box>
+                  {[...new Set(responses.map(response => {
+                    const student = students.find(student => student.id === response.userId);
+                    return student ? student : null;
+                  }).filter(student => student))].map((student, index) => (
+                    <Box key={index} sx={{ marginTop: '2%' }}>
+                      <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 14 }}>
+                        {`${student.name}`}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
+                        {`${student.schoolYear}º ano`}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, mt: 2 }}>
+                  Estudantes que não responderam
+                </Typography>
+                <Box>
+                  {unanswered.map((student, index) => (
+                    <Box key={index} sx={{ marginTop: '2%' }}>
+                      <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 14 }}>
+                        {`${student.name}`}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
+                        {`${student.schoolYear}º ano`}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {selectedContent && (
+            <Grid item xs={5.4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '2.5%' }}>
+              <FormControl sx={{ marginBottom: '4%' }}>
+                <InputLabel id="select-student-label">Selecione o Estudante</InputLabel>
                 <Select
-                  labelId="select-content-label"
-                  id="select-content"
-                  value={selectedContent}
-                  label="Selecione o Conteúdo"
-                  onChange={(e) => setSelectedContent(e.target.value)}
+                  labelId="select-student-label"
+                  id="select-student"
+                  value={selectedStudent}
+                  label="Selecione o Estudante"
+                  sx={{ width: '300px'}}
+                  onChange={(e) => setSelectedStudent(e.target.value)}
                 >
-                  {contents.map((content, index) => (
-                    <MenuItem key={index} value={content.name}>
-                      {content.name}
+                  {students.map((student, index) => (
+                    <MenuItem key={index} value={student.id}>
+                      {student.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              <Box sx={{ mt: 4 }}>
-                    {renderResponsesChart()}
-                    <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, mt: 4 }}>
-                        Estudantes que responderam
-                    </Typography>
-                    <Box>
-                        {[...new Set(responses.map(response => {
-                        const student = students.find(student => student.id === response.userId);
-                        return student ? student : null;
-                        }).filter(student => student))].map((student, index) => (
-                        <Box key={index} sx={{ marginTop: '2%' }}>
-                            <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 14 }}>
-                            {`Estudante: ${student.name}`}
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
-                            {`Série: ${student.schoolYear}`}
-                            </Typography>
-                        </Box>
-                        ))}
-                    </Box>
-                    <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, mt: 2 }}>
-                        Estudantes que não responderam
-                    </Typography>
-                    <Box>
-                        {unanswered.map((student, index) => (
-                        <Box key={index} sx={{ marginTop: '2%' }}>
-                            <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 14 }}>
-                            {`Estudante: ${student.name}`}
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
-                            {`Série: ${student.schoolYear}`}
-                            </Typography>
-                        </Box>
-                        ))}
-                    </Box>
-                    </Box>
-            </Paper>
-          </Grid>
+
+              <Paper elevation={2} sx={{ p: 2, width: '100%' }}>
+                <Typography variant="body1" sx={{ fontFamily: 'Arial', fontSize: 18, marginBottom: '5%' }}>
+                  Quantidade de Acertos & Erros
+                </Typography>
+
+                <Box sx={{ mt: 4 }}>
+                  {renderStudentPerformanceChart()}
+                </Box>
+
+                <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginTop: '2%' }}>
+                  {`Acertos: ${studentPerformance.correct}`}
+                </Typography>
+                <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginTop: '2%' }}>
+                  {`Erros: ${studentPerformance.incorrect}`}
+                </Typography>
+              </Paper>
+            </Grid>
+          )}
         </Grid>
       </Box>
     </Container>

@@ -333,6 +333,7 @@ function CreateUsers({ user, onClose }) {
                           <MenuItem value="art">Arte</MenuItem>
                           <MenuItem value="english">Língua Inglesa</MenuItem>
                           <MenuItem value="physicalEducation">Educação Física</MenuItem>
+                          <MenuItem value="religion">Ensino Religioso</MenuItem>
                         </Select>
                         {errorFields.subject && <Typography color="error">Campo obrigatório</Typography>}
                       </FormControl>

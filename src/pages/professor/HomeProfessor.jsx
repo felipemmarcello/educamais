@@ -28,7 +28,7 @@ function HomeProfessor() {
   }, [globalUid]);
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '4%' }}>
+    <Container maxWidth="lg" sx={{ paddingTop: '2%' }}>
       <Paper elevation={0} sx={{ padding: '2rem' }}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Bem-vindo(a), {user ? user.name : "Carregando..."}

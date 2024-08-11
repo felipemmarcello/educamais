@@ -3,6 +3,8 @@ import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemT
 import HomeIcon from '@mui/icons-material/Home';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { db, auth } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -124,23 +126,23 @@ function SideBarProfessor() {
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
               <MenuBookIcon />
             </ListItemIcon>
-            <ListItemText primary="Criar Matéria" sx={{ color: '#FFFAFA'}} />
+            <ListItemText primary="Criar Questões" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
         </ListItem>
 
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/professor/subjects">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <MenuBookIcon />
+              <QuestionAnswerIcon />
             </ListItemIcon>
-            <ListItemText primary="Matérias" sx={{ color: '#FFFAFA'}} />
+            <ListItemText primary="Questões" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
         </ListItem>
 
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/professor/dashboard">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <MenuBookIcon />
+              <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
