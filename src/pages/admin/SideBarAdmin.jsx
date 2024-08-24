@@ -9,6 +9,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState, useContext } from 'react';
 import UserContext from '../../contexts/UserContext.jsx';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 function SideBarAdmin() {
   const [user, setUser] = useState(null);
@@ -136,6 +137,15 @@ function SideBarAdmin() {
               <PeopleAltIcon />
             </ListItemIcon>
             <ListItemText primary="Usuários" sx={{ color: '#FFFAFA'}}/>
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/admin/dashboard">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
         </ListItem>
 
