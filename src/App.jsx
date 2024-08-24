@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { useState, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import UserContext from './contexts/UserContext.jsx';
@@ -7,28 +7,27 @@ import ProtectedStudentRoute from './pages/student/ProtectedStudentRoute.jsx';
 import ProtectedProfessorRoute from './pages/professor/ProtectedProfessorRoute.jsx';
 import ProtectedAdminEMRoute from './pages/AdminEducaMais/ProtectedAdminEMRoute.jsx';
 
-// Lazy load pages
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const HomeAdmin = lazy(() => import('./pages/admin/HomeAdmin.jsx'));
-const CreateUser = lazy(() => import('./pages/admin/CreateUsers.jsx'));
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
-const ListUsers = lazy(() => import('./pages/admin/ListUsers.jsx'));
-const HomeStudent = lazy(() => import('./pages/student/HomeStudent.jsx'));
-const StudentLayout = lazy(() => import('./pages/student/StudentLayout.jsx'));
-const Subjects = lazy(() => import('./pages/student/SubjectsPage.jsx'));
-const HomeProfessor = lazy(() => import('./pages/professor/HomeProfessor.jsx'));
-const ProfessorLayout = lazy(() => import('./pages/professor/ProfessorLayout.jsx'));
-const SubjectList = lazy(() => import('./pages/student/subjects/SubjectsList.jsx'));
-const SubjectsPageProfessor = lazy(() => import('./pages/professor/SubjectsPageProfessor.jsx'));
-const SubjectsListProfessor = lazy(() => import('./pages/professor/SubjectsListProfessor.jsx'));
-const QuizRouter = lazy(() => import('./pages/student/QuizRouter.jsx'));
-const AdminEMLayout = lazy(() => import('./pages/AdminEducaMais/AdminEMLayout.jsx'));
-const HomeAdminEM = lazy(() => import('./pages/AdminEducaMais/HomeAdminEM.jsx'));
-const CreateSchool = lazy(() => import('./pages/AdminEducaMais/CreateSchool.jsx'));
-const ListSchool = lazy(() => import('./pages/AdminEducaMais/ListSchool.jsx'));
-const CreateQuestion = lazy(() => import('./pages/professor/CreateQuestion.jsx'));
-const Dashboard = lazy(() => import('./pages/student/dashboard/dashboard.jsx'));
-const DashboardProfessor = lazy(() => import('./pages/professor/DashboardProfessor.jsx'))
+import LoginPage from './pages/LoginPage';
+import HomeAdmin from './pages/admin/HomeAdmin.jsx';
+import CreateUser from './pages/admin/CreateUsers.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import ListUsers from './pages/admin/ListUsers.jsx';
+import HomeStudent from './pages/student/HomeStudent.jsx';
+import StudentLayout from './pages/student/StudentLayout.jsx';
+import Subjects from './pages/student/SubjectsPage.jsx';
+import HomeProfessor from './pages/professor/HomeProfessor.jsx';
+import ProfessorLayout from './pages/professor/ProfessorLayout.jsx';
+import SubjectList from './pages/student/subjects/SubjectsList.jsx';
+import SubjectsPageProfessor from './pages/professor/SubjectsPageProfessor.jsx';
+import SubjectsListProfessor from './pages/professor/SubjectsListProfessor.jsx';
+import QuizRouter from './pages/student/QuizRouter.jsx';
+import AdminEMLayout from './pages/AdminEducaMais/AdminEMLayout.jsx';
+import HomeAdminEM from './pages/AdminEducaMais/HomeAdminEM.jsx';
+import CreateSchool from './pages/AdminEducaMais/CreateSchool.jsx';
+import ListSchool from './pages/AdminEducaMais/ListSchool.jsx';
+import CreateQuestion from './pages/professor/CreateQuestion.jsx';
+import Dashboard from './pages/student/dashboard/dashboard.jsx';
+import DashboardProfessor from './pages/professor/DashboardProfessor.jsx';
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
