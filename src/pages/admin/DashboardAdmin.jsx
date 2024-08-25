@@ -254,6 +254,32 @@ const DashboardAdmin = () => {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <img src={AdminIcon} alt="Admin Icon" style={{ width: 36, height: 36 }} />
+                <Typography sx={{ marginLeft: '13px', fontFamily: 'Arial', fontSize: 17}}>
+                  Admin
+                </Typography>
+              </Box>
+              <Typography variant="h3" sx={{ fontFamily: 'Arial', fontWeight: 'bold'}}>
+                {adminCount}
+              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid item>
+            <Paper 
+              elevation={2} 
+              sx={{
+                p: 3, 
+                minHeight: '130px', 
+                minWidth: '130px',
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center',
+                position: 'relative',
+                textAlign: 'center',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <img src={ProfessorIcon} alt="Professor Icon" style={{ width: 36, height: 36 }} />
                 <Typography sx={{ marginLeft: '13px', fontFamily: 'Arial', fontSize: 17}}>
                   Professor
@@ -291,31 +317,6 @@ const DashboardAdmin = () => {
             </Paper>
           </Grid>
 
-          <Grid item>
-            <Paper 
-              elevation={2} 
-              sx={{
-                p: 3, 
-                minHeight: '130px', 
-                minWidth: '130px',
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center',
-                position: 'relative',
-                textAlign: 'center',
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <img src={AdminIcon} alt="Admin Icon" style={{ width: 36, height: 36 }} />
-                <Typography sx={{ marginLeft: '13px', fontFamily: 'Arial', fontSize: 17}}>
-                  Admin
-                </Typography>
-              </Box>
-              <Typography variant="h3" sx={{ fontFamily: 'Arial', fontWeight: 'bold'}}>
-                {adminCount}
-              </Typography>
-            </Paper>
-          </Grid>
         </Grid>
 
         <Box sx={{ display: 'flex', mb: 1, paddingTop: '3.5%', justifyContent: 'center', alignItems: 'center'}}>
