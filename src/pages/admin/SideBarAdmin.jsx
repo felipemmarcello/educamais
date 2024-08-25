@@ -83,18 +83,19 @@ function SideBarAdmin() {
 
   return (
     <Drawer
-      variant="permanent"
-      sx={{
-        width: 240,
-        display: 'flex',
-        flexDirection: 'column',
-        '& .MuiDrawer-paper': {
+        variant="permanent"
+        sx={{
           width: 240,
-          boxSizing: 'border-box',
-          position: 'relative',
-          height: '100%',
-        },
-      }}
+          display: 'flex',
+          flexDirection: 'column',
+          '& .MuiDrawer-paper': {
+            width: 240,
+            boxSizing: 'border-box',
+            position: 'relative',
+            height: '100%',
+            borderColor: 'black',
+          },
+        }}
     >
       <List sx={{ flex: 1, padding: 0, backgroundColor: '#5589c4' }}>
         <ListItem sx={{ backgroundColor: '#5589c4', borderBottom: '1px solid #dedede', padding: 3, borderColor: 'black' }}>

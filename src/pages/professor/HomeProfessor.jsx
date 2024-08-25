@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Grid, Box, Typography, Container, Paper, Divider } from '@mui/material';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector, Text } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
 import UserContext from '../../contexts/UserContext.jsx';
 import { db } from '../../firebase/firebase.js';
 import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
@@ -8,7 +8,22 @@ import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/fir
 function HomeProfessor() {
   const [user, setUser] = useState(null);
   const [subjectData, setSubjectData] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0); // Definir o estado activeIndex
   const { globalUid } = useContext(UserContext);
+
+  // Expansão do array de cores com mais opções
+  const COLORS = [
+    '#FF8042', '#00C49F', '#FFBB28', '#0088FE', '#FF6347', '#B0E57C', 
+    '#8A2BE2', '#A52A2A', '#DEB887', '#5F9EA0', '#7FFF00', '#D2691E',
+    '#FF7F50', '#6495ED', '#DC143C', '#00FFFF', '#00008B', '#008B8B',
+    '#B8860B', '#A9A9A9', '#006400', '#BDB76B', '#8B008B', '#556B2F',
+    '#FF8C00', '#9932CC', '#8B0000', '#E9967A', '#8FBC8F', '#483D8B',
+    '#2F4F4F', '#00CED1', '#9400D3', '#FF1493', '#00BFFF', '#696969',
+    '#1E90FF', '#B22222', '#FFFAF0', '#228B22', '#FF00FF', '#DCDCDC',
+    '#F8F8FF', '#FFD700', '#DAA520', '#808080', '#008000', '#ADFF2F',
+    '#F0FFF0', '#FF69B4', '#CD5C5C', '#4B0082', '#FFFFF0', '#F0E68C',
+    '#E6E6FA', '#FFF0F5', '#7CFC00', '#FFFACD', '#ADD8E6', '#F08080'
+  ];
 
   useEffect(() => {
     if (globalUid) {
@@ -43,6 +58,11 @@ function HomeProfessor() {
       return () => unsub();
     }
   }, [globalUid]);
+
+  // Função para alterar o activeIndex
+  const onPieEnter = (_, index) => {
+    setActiveIndex(index);
+  };
 
   const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
@@ -114,10 +134,10 @@ function HomeProfessor() {
           <Grid container spacing={15} justifyContent="center">
             <Grid item xs={12} sm={6} md={8}>
               {subjectData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={400}>
+                <ResponsiveContainer width="100%" height={350}>
                   <PieChart>
                     <Pie
-                      activeIndex={0}
+                      activeIndex={activeIndex}
                       activeShape={renderActiveShape}
                       data={subjectData}
                       cx="50%"
@@ -126,8 +146,12 @@ function HomeProfessor() {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
-                    />
-                    <Tooltip />
+                      onMouseEnter={onPieEnter} // Adiciona o evento para alterar o activeIndex
+                    >
+                      {subjectData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
