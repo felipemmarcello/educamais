@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { db } from '../../firebase/firebase.js';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
-import { Container, Typography, Box, Grid, Paper, Select, Divider, MenuItem, FormControl, InputLabel, List, ListItem, ListItemText, Pagination, Button } from '@mui/material';
+import { Container, Typography, Box, Grid, Paper, Select, Divider, MenuItem, FormControl, InputLabel, Pagination } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import UserContext from '../../contexts/UserContext.jsx';
 import portugueseIcon from '../../images/portugueseIcon.png';
@@ -156,14 +156,14 @@ const DashboardProfessor = () => {
     updatePerformance();
   }, [selectedStudent, selectedContent]);
 
-  const CustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+  const CustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
     const radius = 25 + innerRadius + (outerRadius - innerRadius);
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central">
+      <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" fontFamily="Arial">
         {`${(percent * 100).toFixed(0)}%`}
       </text>
     );
@@ -254,7 +254,6 @@ const DashboardProfessor = () => {
   return (
     <Container>
       <Box sx={{ mb: 4 }}>
-
         <div style={{ display: 'flex', paddingTop: '5%', paddingLeft: '12%' }}>
           <Typography variant="h3" sx={{ mb: 2 }}>
             Dashboard
