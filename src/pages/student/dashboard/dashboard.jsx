@@ -62,7 +62,7 @@ const renderActiveShape = (props) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" fontFamily="Arial" fontSize={14}>{`Porcentagem`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" fontFamily="Arial" fontSize={14}>{`Questões`}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999" fontFamily="Arial" fontSize={12}>
         {`${(percent * 100).toFixed(2)}%`}
       </text>
@@ -198,7 +198,6 @@ const Dashboard = () => {
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>
-          <Tooltip />
         </PieChart>
       </ResponsiveContainer>
     );
@@ -265,7 +264,7 @@ const Dashboard = () => {
               </FormControl>
             </Box>
           </Grid>
-          <Grid item xs={4.5} sx={{marginLeft: '5%'}}>
+          <Grid item xs={5.5} sx={{marginLeft: '5%'}}>
             <Paper elevation={3} sx={{ p: 2}}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
                 <Typography variant="h6" gutterBottom style={{ marginRight: '8px' }}>

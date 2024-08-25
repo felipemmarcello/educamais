@@ -3,14 +3,16 @@ import { Grid, Box, Typography, Container, Paper, Divider } from '@mui/material'
 import UserContext from '../../contexts/UserContext.jsx';
 import { db } from '../../firebase/firebase.js';
 import { doc, onSnapshot, getDocs, query, collection, where } from 'firebase/firestore';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
 
 function HomeStudent() {
   const [user, setUser] = useState(null);
-  const { globalUid } = useContext(UserContext);
-
   const [totalQuestions, setTotalQuestions] = useState({});
   const [answeredQuestions, setAnsweredQuestions] = useState({});
+  const [activeIndex, setActiveIndex] = useState(0); // Definir o estado activeIndex
+  const { globalUid } = useContext(UserContext);
+
+  const COLORS = ['#00C49F', '#f83515']; // Cores para respondidas e não respondidas
 
   useEffect(() => {
     if (globalUid) {
@@ -63,48 +65,94 @@ function HomeStudent() {
     }
   }, [user, globalUid]);
 
-  const renderPieChartWithPaddingAngle = () => {
-    const totalQuestionsCount = Object.values(totalQuestions).reduce((acc, val) => acc + val, 0);
-    const totalAnsweredCount = Object.values(answeredQuestions).reduce((acc, val) => acc + (val.uniqueQuestions || 0), 0);
-    const data = [
-      { name: 'Qtd. Questões', value: totalQuestionsCount },
-      { name: 'Não respondidas', value: totalQuestionsCount - totalAnsweredCount }
-    ];
-    const colors = ['#8884d8', '#82ca9d'];
+  // Função para alterar o activeIndex
+  const onPieEnter = (_, index) => {
+    setActiveIndex(index);
+  };
+
+  const renderActiveShape = (props) => {
+    const RADIAN = Math.PI / 180;
+    const {
+      cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle,
+      fill, payload, percent, value,
+    } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius + 10) * cos;
+    const sy = cy + (outerRadius + 10) * sin;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+    const ey = my;
+    const textAnchor = cos >= 0 ? 'start' : 'end';
 
     return (
-      <ResponsiveContainer width="100%" height={250}>
+      <g>
+        <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} fontFamily="Arial">{payload.name}</text>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={outerRadius + 6}
+          outerRadius={outerRadius + 10}
+          fill={fill}
+        />
+        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" fontFamily="Arial">{`Questões: ${value}`}</text>
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999" fontFamily="Arial">
+          {`(${(percent * 100).toFixed(2)}%)`}
+        </text>
+      </g>
+    );
+  };
+
+  const renderPieChart = () => {
+    const totalAnsweredCount = Object.values(answeredQuestions).reduce((acc, val) => acc + (val.uniqueQuestions || 0), 0);
+    const totalUnansweredCount = Object.values(totalQuestions).reduce((acc, val) => acc + val, 0) - totalAnsweredCount;
+    
+    const data = [
+      { name: 'Respondidas', value: totalAnsweredCount },
+      { name: 'Sem Resposta', value: totalUnansweredCount }
+    ];
+
+    return (
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
+            activeIndex={activeIndex}
+            activeShape={renderActiveShape}
             data={data}
             cx="50%"
             cy="50%"
-            startAngle={360}
-            endAngle={0}
             innerRadius={60}
             outerRadius={80}
             fill="#8884d8"
             dataKey="value"
-            paddingAngle={5}
-            label={({ name, percent, x, y }) => (
-              <text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" fontFamily="Arial" fontSize={14}>
-                {(percent * 100).toFixed(0)}%
-              </text>
-            )}
+            onMouseEnter={onPieEnter} // Adiciona o evento para alterar o activeIndex
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Legend wrapperStyle={{ fontFamily: 'Arial', fontSize: 14 }} />
-          <Tooltip contentStyle={{ fontFamily: 'Arial', fontSize: 12 }} />
+          <Tooltip />
         </PieChart>
       </ResponsiveContainer>
     );
   };
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '3%' }}>
+    <Container maxWidth="lg" sx={{ paddingTop: '2%' }}>
       <Paper elevation={0} sx={{ padding: '2rem' }}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Bem-vindo(a), {user ? user.name : "Carregando..."}
@@ -121,14 +169,11 @@ function HomeStudent() {
           <li><Typography variant="body1">Participar das perguntas e respostas para testar seus conhecimentos.</Typography></li>
           <li><Typography variant="body1">Visualizar seu desempenho e progresso.</Typography></li>
         </ul>
-
-        <Box sx={{ marginY: '5%' }}>
+        
+        <Box>
           <Grid container spacing={15} justifyContent="center">
-            <Grid item xs={12} sm={8} md={6}>
-              <Typography variant="h6" gutterBottom>
-                Questões Totais
-              </Typography>
-              {renderPieChartWithPaddingAngle()}
+            <Grid item xs={12} md={8}>
+              {renderPieChart()}
             </Grid>
           </Grid>
         </Box>
