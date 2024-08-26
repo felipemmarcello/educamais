@@ -148,14 +148,11 @@ function ListSchool() {
 
     const getSortDescription = () => {
         if (!sortCriteria) return 'Sem ordenação';
-        const criteriaMap = {
-            name: 'Alfabética'
-        };
         const orderMap = {
-            asc: 'crescente',
-            desc: 'decrescente'
+            asc: 'Crescente',
+            desc: 'Decrescente'
         };
-        return `${criteriaMap[sortCriteria]} - ${orderMap[sortOrder]}`;
+        return `${orderMap[sortOrder]}`;
     };
 
     const handleChangePage = (event, value) => {

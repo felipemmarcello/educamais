@@ -41,9 +41,9 @@ function HomeAdminEM() {
         </Typography>
 
         <ul>
-          <li><Typography variant="body1">Criar novos usuários e definir seus papéis.</Typography></li>
-          <li><Typography variant="body1">Editar informações dos usuários existentes.</Typography></li>
-          <li><Typography variant="body1">Excluir usuários que não fazem mais parte da instituição.</Typography></li>
+          <li><Typography variant="body1">Criar novas escolas</Typography></li>
+          <li><Typography variant="body1">Editar informações das escolas existentes</Typography></li>
+          <li><Typography variant="body1">Ter acesso às informações das escolas</Typography></li>
         </ul>
         <Box sx= {{marginY: '8%'}}>
           <Grid container spacing={15} justifyContent="center">

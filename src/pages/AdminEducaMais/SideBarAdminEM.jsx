@@ -4,6 +4,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { db, auth } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -134,6 +135,15 @@ function SideBarAdminEM() {
               <PeopleAltIcon />
             </ListItemIcon>
             <ListItemText primary="Escolas" sx={{ color: '#FFFAFA'}}/>
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/AdminEM/dashboard">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
         </ListItem>
 

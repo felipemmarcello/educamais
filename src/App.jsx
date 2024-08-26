@@ -29,6 +29,8 @@ import CreateQuestion from './pages/professor/CreateQuestion.jsx';
 import Dashboard from './pages/student/dashboard/dashboard.jsx';
 import DashboardProfessor from './pages/professor/DashboardProfessor.jsx';
 import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
+import DashboardAdminEM from './pages/AdminEducaMais/DashboardEM.jsx';
+
 
 function App() {
   const [globalUid, setGlobalUid] = useState(null);
@@ -62,6 +64,7 @@ function App() {
                     <Route index element={<HomeAdminEM />} />
                     <Route path="create-school" element={<CreateSchool />} />
                     <Route path="list-school" element={<ListSchool />} />
+                    <Route path="dashboard" element={<DashboardAdminEM />} />
                   </Route>
 
                   <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
