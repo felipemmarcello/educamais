@@ -7,6 +7,15 @@ import { CheckCircle, Cancel, Edit, Delete } from '@mui/icons-material';
 import TextWithColor from '../../components/TextWithColors.jsx';
 import UserContext from '../../contexts/UserContext.jsx';
 import CreateQuestion from './CreateQuestion';
+import portugueseIcon from '../../images/portugueseIcon.png';
+import mathematicsIcon from '../../images/mathematicsIcon.png';
+import scienceIcon from '../../images/scienceIcon.png';
+import geographyIcon from '../../images/geographyIcon.png';
+import historyIcon from '../../images/historyIcon.png';
+import artIcon from '../../images/artIcon.png';
+import englishIcon from '../../images/englishIcon.png';
+import physicalEducationIcon from '../../images/physicalEducationIcon.png';
+import religionIcon from '../../images/religionIcon.png';
 
 const SubjectsListProfessor = () => {
   const { subjectId } = useParams();
@@ -26,15 +35,15 @@ const SubjectsListProfessor = () => {
   const navigate = useNavigate();
 
   const subjectDetails = {
-    portuguese: { name: 'Língua Portuguesa', color: '#FF6347' },
-    mathematics: { name: 'Matemática', color: '#eed171' },
-    science: { name: 'Ciências', color: '#5bcb77' },
-    geography: { name: 'Geografia', color: '#00BFFF' },
-    history: { name: 'História', color: '#DEB887' },
-    art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)' },
-    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, #b7b9b9, red)' },
-    physicalEducation: { name: 'Educação Física', color: '#ed8900' },
-    religion: { name: 'Ensino Religioso', color: '#aea881' }
+    portuguese: { name: 'Língua Portuguesa', color: '#FF6347', icon: portugueseIcon },
+    mathematics: { name: 'Matemática', color: '#eed171', icon: mathematicsIcon },
+    science: { name: 'Ciências', color: '#5bcb77', icon: scienceIcon },
+    geography: { name: 'Geografia', color: '#00BFFF', icon: geographyIcon },
+    history: { name: 'História', color: '#DEB887', icon: historyIcon },
+    art: { name: 'Arte', color: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)', icon: artIcon },
+    english: { name: 'Língua Inglesa', color: 'linear-gradient(to right, blue, #b7b9b9, red)', icon: englishIcon },
+    physicalEducation: { name: 'Educação Física', color: '#ed8900', icon: physicalEducationIcon },
+    religion: { name: 'Ensino Religioso', color: '#aea881', icon: religionIcon }
   };
 
   useEffect(() => {
@@ -135,9 +144,12 @@ const SubjectsListProfessor = () => {
 
   return (
     <Container>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '5%', marginTop: '6%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4, mb: 2, marginBottom: '5%', marginTop: '6%' }}>
         <Typography variant="h3" gutterBottom className="text-shadow">
           <TextWithColor subject={subjectId} text={getSubjectDisplayName(subjectId)} color={subjectDetails[subjectId]?.color} />
+          {subjectDetails[subjectId]?.icon && (
+          <img src={subjectDetails[subjectId].icon} alt={`${subjectId} icon`} style={{width: '38px', marginLeft: '15px' }} />
+        )}
         </Typography>
       </Box>
       <Box sx={{ marginTop: '5%', marginLeft: 'auto', marginRight: 'auto', width: '70%' }}>
@@ -159,7 +171,9 @@ const SubjectsListProfessor = () => {
               <React.Fragment key={index}>
                 <ListItem disablePadding>
                   <ListItemButton onClick={() => handleNavigation(item.subject)}>
-                    <ListItemText primary={<TextWithColor subject={item.subject} text={item.subject} color={item.color} />} />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <ListItemText primary={<TextWithColor subject={item.subject} text={item.subject} color={item.color} />} />
+                    </Box>
                   </ListItemButton>
                 </ListItem>
                 {index < paginatedSubjects.length - 1 && <Divider />}

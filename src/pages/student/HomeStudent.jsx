@@ -139,13 +139,12 @@ function HomeStudent() {
             outerRadius={80}
             fill="#8884d8"
             dataKey="value"
-            onMouseEnter={onPieEnter} // Adiciona o evento para alterar o activeIndex
+            onMouseEnter={onPieEnter}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip />
         </PieChart>
       </ResponsiveContainer>
     );

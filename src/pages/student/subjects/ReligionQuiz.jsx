@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
-import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -17,8 +17,6 @@ const QuizQuestion = ({
   handleSubmit,
   handleNextQuestion,
   handleFinish,
-  feedback,
-  feedbackColor,
   answered,
   currentQuestionIndex,
   totalQuestions
@@ -84,7 +82,7 @@ const QuizQuestion = ({
   </div>
 );
 
-const QuizResults = ({ correctCount, incorrectCount }) => (
+const QuizResults = ({ correctCount, incorrectCount, quizPoints }) => (
   <CardContent sx={{ marginTop: '22%', width: '400px', height: '180px', textAlign: 'center', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
     <Typography variant="h5" gutterBottom>Resultados</Typography>
     <Box display="flex" alignItems="center" mb={2}>
@@ -98,6 +96,9 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
       <CancelIcon color="error" sx={{ mr: 1 }} />
       <Typography variant="body1">Respostas Incorretas: {incorrectCount}</Typography>
     </Box>
+    <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+      <Typography variant="h6">Pontos Obtidos: {quizPoints}</Typography>
+    </Box>
   </CardContent>
 );
 
@@ -106,8 +107,6 @@ const ReligionQuiz = () => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [feedbackColor, setFeedbackColor] = useState("error");
   const [user, setUser] = useState(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -116,6 +115,7 @@ const ReligionQuiz = () => {
   const [subject, setSubject] = useState('');
   const [schoolYear, setSchoolYear] = useState('');
   const [schoolId, setSchoolId] = useState('');
+  const [quizPoints, setQuizPoints] = useState(0);
 
   const navigate = useNavigate();
 
@@ -178,15 +178,16 @@ const ReligionQuiz = () => {
     const currentQuestion = questions[currentQuestionIndex];
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    let points = 0;
+
     if (isCorrect) {
-      setFeedback("Correto!");
-      setFeedbackColor("success");
       setCorrectCount(correctCount + 1);
+      points = 10;
     } else {
-      setFeedback("Incorreta!");
-      setFeedbackColor("error");
       setIncorrectCount(incorrectCount + 1);
     }
+
+    setQuizPoints(quizPoints + points);
 
     await addDoc(collection(db, "userReligionResponses"), {
       userId: user.uid,
@@ -202,16 +203,26 @@ const ReligionQuiz = () => {
   };
 
   const handleNextQuestion = () => {
-    setFeedback("");
     setSelectedAnswer("");
     setAnswered(false);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti();
     setQuizFinished(true);
+
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const existingPoints = userDoc.data().points || 0;
+        await updateDoc(userRef, {
+          points: existingPoints + quizPoints
+        });
+      }
+    }
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -228,7 +239,7 @@ const ReligionQuiz = () => {
           <Container>
             <Paper elevation={2} sx={{ borderRadius: '5px'}}>
               {quizFinished ? (
-                <QuizResults correctCount={correctCount} incorrectCount={incorrectCount} />
+                <QuizResults correctCount={correctCount} incorrectCount={incorrectCount} quizPoints={quizPoints} />
               ) : currentQuestion ? (
                 <QuizQuestion
                   question={currentQuestion}
@@ -237,8 +248,6 @@ const ReligionQuiz = () => {
                   handleSubmit={handleSubmit}
                   handleNextQuestion={handleNextQuestion}
                   handleFinish={handleFinish}
-                  feedback={feedback}
-                  feedbackColor={feedbackColor}
                   answered={answered}
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={questions.length}

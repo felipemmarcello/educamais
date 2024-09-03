@@ -39,19 +39,18 @@ const DashboardEM = () => {
 
   useEffect(() => {
     const fetchCounts = async () => {
+      let queryConstraints = [
+        where('role', '!=', 'AdminEM')  // Excluir usuários com role 'AdminEM'
+      ];
       if (schoolId) {
-        try {
-          const usersSnapshot = await getDocs(
-            query(
-              collection(db, 'users'),
-              where('schoolId', '==', schoolId)
-            )
-          );
+        queryConstraints.push(where('schoolId', '==', schoolId));
+      }
 
-          setUserCount(usersSnapshot.size); // Contagem total de usuários
-        } catch (error) {
-          console.error("Erro ao buscar contagem de usuários:", error);
-        }
+      try {
+        const usersSnapshot = await getDocs(query(collection(db, 'users'), ...queryConstraints));
+        setUserCount(usersSnapshot.size); // Contagem total de usuários, excluindo 'AdminEM'
+      } catch (error) {
+        console.error("Erro ao buscar contagem de usuários:", error);
       }
     };
 
@@ -60,7 +59,10 @@ const DashboardEM = () => {
 
   useEffect(() => {
     const fetchTotalContentCount = async () => {
-      if (!schoolId) return;
+      let queryConstraints = [];
+      if (schoolId) {
+        queryConstraints.push(where('schoolId', '==', schoolId));
+      }
 
       const collections = [
         'scienceQuestions',
@@ -78,13 +80,7 @@ const DashboardEM = () => {
 
       for (const col of collections) {
         try {
-          const snapshot = await getDocs(
-            query(
-              collection(db, col),
-              where('schoolId', '==', schoolId)
-            )
-          );
-          
+          const snapshot = await getDocs(query(collection(db, col), ...queryConstraints));
           snapshot.docs.forEach(doc => {
             const subject = doc.data().subject;
             if (subject) {
@@ -104,7 +100,10 @@ const DashboardEM = () => {
 
   useEffect(() => {
     const fetchTotalResponseCount = async () => {
-      if (!schoolId) return;
+      let queryConstraints = [];
+      if (schoolId) {
+        queryConstraints.push(where('schoolId', '==', schoolId));
+      }
 
       const responseCollections = [
         'userPortugueseResponses',
@@ -122,14 +121,8 @@ const DashboardEM = () => {
 
       for (const col of responseCollections) {
         try {
-          const snapshot = await getDocs(
-            query(
-              collection(db, col),
-              where('schoolId', '==', schoolId)
-            )
-          );
-
-          totalResponses += snapshot.size; // Somar o número de documentos na coleção de respostas
+          const snapshot = await getDocs(query(collection(db, col), ...queryConstraints));
+          totalResponses += snapshot.size;
         } catch (error) {
           console.error(`Erro ao buscar contagem de respostas para a coleção ${col}:`, error);
         }
@@ -143,7 +136,10 @@ const DashboardEM = () => {
 
   useEffect(() => {
     const fetchTotalQuestionsCount = async () => {
-      if (!schoolId) return;
+      let queryConstraints = [];
+      if (schoolId) {
+        queryConstraints.push(where('schoolId', '==', schoolId));
+      }
 
       const collections = [
         'scienceQuestions',
@@ -161,14 +157,8 @@ const DashboardEM = () => {
 
       for (const col of collections) {
         try {
-          const snapshot = await getDocs(
-            query(
-              collection(db, col),
-              where('schoolId', '==', schoolId)
-            )
-          );
-
-          totalQuestions += snapshot.size; // Somar o número de documentos (questões) em cada coleção
+          const snapshot = await getDocs(query(collection(db, col), ...queryConstraints));
+          totalQuestions += snapshot.size;
         } catch (error) {
           console.error(`Erro ao buscar contagem de questões para a coleção ${col}:`, error);
         }
@@ -197,6 +187,9 @@ const DashboardEM = () => {
               label="Escolha uma escola"
               onChange={(e) => setSchoolId(e.target.value)}
             >
+              <MenuItem value="">
+                <em>Todas as Escolas</em>
+              </MenuItem>
               {schools.map((school) => (
                 <MenuItem key={school.id} value={school.id}>
                   {school.name}
@@ -240,18 +233,16 @@ const DashboardEM = () => {
               </Typography>
             </Paper>
           </Grid>
-
         </Grid>
-
 
         <Box sx={{ display: 'flex', mb: 1, paddingTop: '3.5%', justifyContent: 'center', alignItems: 'center'}}>
           <Typography gutterBottom sx={{fontSize: 18}}>
-            Usuários, Conteúdos e Questões (selecione uma escola)
+            Usuários, Conteúdos e Questões {schoolId ? `(Escola selecionada)` : `(Todas as escolas)`}
           </Typography>
         </Box>
 
         <Grid container spacing={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Grid item>
+          <Grid item>
             <Paper 
               elevation={2} 
               sx={{
