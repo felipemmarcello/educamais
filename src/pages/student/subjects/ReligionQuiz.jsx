@@ -20,7 +20,12 @@ const levelRequirements = {
   7: 2600,
   8: 3200,
   9: 3800,
-  10: 5000
+  10: 5000,
+  11: 6200,
+  12: 7400,
+  13: 9000,
+  14: 10600,
+  15: 12000
 };
 
 const calculateLevel = (exp) => {
@@ -43,7 +48,7 @@ const QuizQuestion = ({
   answered,
   currentQuestionIndex,
   totalQuestions,
-  timeLeft // New prop for timer
+  timeLeft 
 }) => (
   <div style={{ width: '950px', margin: '0, auto' }}>
 
@@ -55,8 +60,8 @@ const QuizQuestion = ({
         paddingTop: '2%', 
         fontSize: '1.10rem', 
         marginRight: '5%', 
-        wordWrap: 'break-word',  // Força a quebra de linha
-        whiteSpace: 'normal'     // Garante que o texto respeite as quebras de linha
+        wordWrap: 'break-word',  
+        whiteSpace: 'normal'    
       }} 
       gutterBottom
     >
@@ -91,9 +96,9 @@ const QuizQuestion = ({
                     color: color, 
                     padding: '5px 0px', 
                     borderRadius: '3px',
-                    maxWidth: '100%', // Garante que o texto respeite a largura do container
-                    overflowWrap: 'break-word',  // Força a quebra de palavras longas
-                    whiteSpace: 'normal' // Respeita quebras de linha normais
+                    maxWidth: '100%', 
+                    overflowWrap: 'break-word',  
+                    whiteSpace: 'normal'
                   }}>
                     {answer}
                   </span>
@@ -164,7 +169,7 @@ const ReligionQuiz = () => {
   const [schoolYear, setSchoolYear] = useState('');
   const [schoolId, setSchoolId] = useState('');
   const [quizPoints, setQuizPoints] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes timer
+  const [timeLeft, setTimeLeft] = useState(120); 
 
   const navigate = useNavigate();
 
@@ -234,67 +239,71 @@ const ReligionQuiz = () => {
       console.error("Usuário não autenticado!");
       return;
     }
-
+  
     const currentQuestion = questions[currentQuestionIndex];
-
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
     let points = 0;
     let exp = 0;
-
+  
     if (isCorrect) {
       if (timeLeft > 0) {
-        points = 10; // If answered within time
+        points = 10; 
       } else {
-        points = 5; // If answered after time
+        points = 5;
       }
-      setCorrectCount(correctCount + 1);
-      exp = 50; // Correct answers gain 50 EXP
+      setCorrectCount((prev) => prev + 1);
+      exp = 50; 
     } else {
-      setIncorrectCount(incorrectCount + 1);
+      setIncorrectCount((prev) => prev + 1);
     }
-
-    setQuizPoints(quizPoints + points);
-
+  
+    setQuizPoints((prev) => prev + points); 
+  
     await addDoc(collection(db, "userReligionResponses"), {
       userId: user.uid,
-      question: currentQuestion.question, 
+      question: currentQuestion.question,
       selectedAnswer,
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
       schoolId: schoolId
     });
-
+  
     setAnswered(true);
-
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const newExp = (userData.exp || 0) + exp;
-        const newLevel = calculateLevel(newExp);
-
-        await updateDoc(userRef, {
-          points: (userData.points || 0) + quizPoints,
-          exp: newExp,
-          level: newLevel
-        });
-      }
-    }
   };
 
   const handleNextQuestion = () => {
     setSelectedAnswer("");
     setAnswered(false);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
-    setTimeLeft(120); // Reset timer for next question
+    setTimeLeft(120); 
   };
 
   const handleFinish = async () => {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti();
-    setQuizFinished(true);
+    
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+  
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+  
+        const newExp = (userData.exp || 0) + (correctCount * 50); 
+        const newLevel = calculateLevel(newExp);  
+        const totalPoints = (userData.points || 0) + quizPoints; 
+  
+        
+        await updateDoc(userRef, {
+          points: totalPoints, 
+          exp: newExp,
+          level: newLevel
+        });
+      }
+    }
+  
+    setQuizFinished(true); 
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -323,7 +332,7 @@ const ReligionQuiz = () => {
                   answered={answered}
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={questions.length}
-                  timeLeft={timeLeft} // Pass timeLeft to question component
+                  timeLeft={timeLeft} 
                 />
               ) : (
                 <CircularProgress />

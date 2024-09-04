@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box } from '@mui/material';
+import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box, LinearProgress } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -8,6 +8,24 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState, useContext } from 'react';
 import UserContext from '../../contexts/UserContext.jsx';
+
+const levelRequirements = {
+  1: 0,
+  2: 300,
+  3: 600,
+  4: 900,
+  5: 1200,
+  6: 1800,
+  7: 2600,
+  8: 3200,
+  9: 3800,
+  10: 5000,
+  11: 6200,
+  12: 7400,
+  13: 9000,
+  14: 10600,
+  15: 12000
+};
 
 function SideBarStudent() {
   const [user, setUser] = useState(null);
@@ -48,6 +66,14 @@ function SideBarStudent() {
     const nameParts = name.split(' ');
     const firstName = nameParts[0];
     return `${firstName}`;
+  };
+
+  const calculateProgress = (exp) => {
+    const level = user.level || 1;
+    const currentExp = exp || 0;
+    const maxExp = levelRequirements[level + 1] || levelRequirements[10];
+    const minExp = levelRequirements[level] || 0;
+    return ((currentExp - minExp) / (maxExp - minExp)) * 100;
   };
 
   if (!user) {
@@ -94,7 +120,7 @@ function SideBarStudent() {
       }}
     >
       <List sx={{ flex: 1, padding: 0, backgroundColor: '#5589c4' }}>
-        <ListItem sx={{ backgroundColor: '#5589c4', borderBottom: '1px solid #dedede', padding: 3, borderColor: 'black' }}>
+        <ListItem sx={{ backgroundColor: '#5589c4', padding: 3, borderBottom: '1px solid #dedede', borderColor: 'black'}}>
           <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main', marginRight: 2 }}>{user.name[0]}</Avatar>
           <ListItemText 
             primary={
@@ -108,6 +134,34 @@ function SideBarStudent() {
               </Typography>
             } 
           />
+          
+        </ListItem>
+
+        <ListItem sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: '1px solid #dedede', borderColor: 'black', backgroundColor: '#5589c4'}}>
+          
+          <Typography variant="body2" sx={{ color: '#FFFAFA', marginBottom: 1.8, marginTop: 1 }}>
+            Pontos: {user.points || 0}
+          </Typography>
+
+          <Typography variant="body2" sx={{ color: '#FFFAFA'}}>
+            Nível: {user.level || 1}
+          </Typography>
+
+          <Box sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}>
+            <LinearProgress
+              variant="determinate"
+              value={calculateProgress(user.exp)}
+              sx={{
+                backgroundColor: '#cccccc',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: '#FFFAFA',
+                },
+              }}
+            />
+            <Typography variant="caption" sx={{ color: '#FFFAFA', textAlign: 'center', display: 'block' }}>
+              {user.exp} / {levelRequirements[user.level + 1] || levelRequirements[10]} EXP
+            </Typography>
+          </Box>
         </ListItem>
 
         <ListItem disablePadding sx={{p: 0.5, paddingTop: '5%'}}>

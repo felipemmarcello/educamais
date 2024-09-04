@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
-import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -10,6 +10,34 @@ import TextWithColor from '../../../components/TextWithColors.jsx';
 import JSConfetti from 'js-confetti';
 import '../subjectsCSS/QuizStyles.css';
 
+const levelRequirements = {
+  1: 0,
+  2: 300,
+  3: 600,
+  4: 900,
+  5: 1200,
+  6: 1800,
+  7: 2600,
+  8: 3200,
+  9: 3800,
+  10: 5000,
+  11: 6200,
+  12: 7400,
+  13: 9000,
+  14: 10600,
+  15: 12000
+};
+
+const calculateLevel = (exp) => {
+  let level = 1;
+  for (const [lvl, req] of Object.entries(levelRequirements)) {
+    if (exp >= req) {
+      level = parseInt(lvl);
+    }
+  }
+  return level;
+};
+
 const QuizQuestion = ({
   question,
   selectedAnswer,
@@ -17,46 +45,69 @@ const QuizQuestion = ({
   handleSubmit,
   handleNextQuestion,
   handleFinish,
-  feedback,
-  feedbackColor,
   answered,
   currentQuestionIndex,
-  totalQuestions
+  totalQuestions,
+  timeLeft 
 }) => (
-  <div style={{ width: '720px', margin: '0, auto' }}>
-    <Typography variant="h6" style={{ marginTop: '5%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
+  <div style={{ width: '950px', margin: '0, auto' }}>
+
+    <Typography 
+      variant="h6" 
+      style={{ 
+        marginTop: '2%', 
+        marginLeft: '3%', 
+        paddingTop: '2%', 
+        fontSize: '1.10rem', 
+        marginRight: '5%', 
+        wordWrap: 'break-word',  
+        whiteSpace: 'normal'    
+      }} 
+      gutterBottom
+    >
+      <Typography variant="body1" style={{marginBottom: '1%' }}>
+        Temporizador: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')} | Termine a tempo para ganhar mais pontos! {/* Timer display */}
+      </Typography>
       {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
-    <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
-      <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
-        {question.answers.map((answer, index) => {
-          let backgroundColor = "inherit";
-          let color = "inherit";
-          if (answered) {
-            if (answer === question.correctAnswer) {
-              backgroundColor = "#00a86b";
-              color = "white";
-            } else if (answer === selectedAnswer) {
-              backgroundColor = "#e76b57";
-              color = "white";
-            }
-          }
-          return (
-            <FormControlLabel
-              key={index}
-              value={answer}
-              control={<Radio />}
-              sx={{ paddingBottom: '6px' }}
-              label={
-                <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 0px', borderRadius: '3px' }}>
-                  {answer}
-                </span>
+    <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '3%', marginRight: '3%' }}>
+          <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
+          {question.answers.map((answer, index) => {
+            let backgroundColor = "inherit";
+            let color = "inherit";
+            if (answered) {
+              if (answer === question.correctAnswer) {
+                backgroundColor = "#00a86b";
+                color = "white";
+              } else if (answer === selectedAnswer) {
+                backgroundColor = "#e76b57";
+                color = "white";
               }
-              disabled={answered}
-            />
-          );
-        })}
-      </RadioGroup>
+            }
+            return (
+              <FormControlLabel
+                key={index}
+                value={answer}
+                control={<Radio />}
+                sx={{ paddingBottom: '6px' }}
+                label={
+                  <span style={{
+                    backgroundColor: backgroundColor, 
+                    color: color, 
+                    padding: '5px 0px', 
+                    borderRadius: '3px',
+                    maxWidth: '100%', 
+                    overflowWrap: 'break-word',  
+                    whiteSpace: 'normal'
+                  }}>
+                    {answer}
+                  </span>
+                }
+                disabled={answered}
+              />
+            );
+          })}
+        </RadioGroup>
       <div style={{ display: 'flex', marginTop: 20, marginBottom: '3%' }}>
         <Button
           variant="contained"
@@ -84,7 +135,7 @@ const QuizQuestion = ({
   </div>
 );
 
-const QuizResults = ({ correctCount, incorrectCount }) => (
+const QuizResults = ({ correctCount, incorrectCount, quizPoints }) => (
   <CardContent sx={{ marginTop: '22%', width: '400px', height: '180px', textAlign: 'center', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
     <Typography variant="h5" gutterBottom>Resultados</Typography>
     <Box display="flex" alignItems="center" mb={2}>
@@ -98,6 +149,9 @@ const QuizResults = ({ correctCount, incorrectCount }) => (
       <CancelIcon color="error" sx={{ mr: 1 }} />
       <Typography variant="body1">Respostas Incorretas: {incorrectCount}</Typography>
     </Box>
+    <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+      <Typography variant="h6">Pontos Obtidos: {quizPoints}</Typography>
+    </Box>
   </CardContent>
 );
 
@@ -106,8 +160,6 @@ const PortugueseQuiz = () => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [feedbackColor, setFeedbackColor] = useState("error");
   const [user, setUser] = useState(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -116,8 +168,21 @@ const PortugueseQuiz = () => {
   const [subject, setSubject] = useState('');
   const [schoolYear, setSchoolYear] = useState('');
   const [schoolId, setSchoolId] = useState('');
+  const [quizPoints, setQuizPoints] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(120); 
 
   const navigate = useNavigate();
+
+  // Timer effect
+  useEffect(() => {
+    let timer;
+    if (!answered && timeLeft > 0) {
+      timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [timeLeft, answered]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -143,7 +208,7 @@ const PortugueseQuiz = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`));
+      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`)); // Certifique-se que a coleção seja relacionada ao quiz de Português
       let fetchedQuestions = querySnapshot.docs
         .map((doc) => doc.data())
         .filter((question) => question.subject === selectedSubject);
@@ -174,44 +239,70 @@ const PortugueseQuiz = () => {
       console.error("Usuário não autenticado!");
       return;
     }
-
+  
     const currentQuestion = questions[currentQuestionIndex];
-
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    let points = 0;
+    let exp = 0;
+  
     if (isCorrect) {
-      setFeedback("Correto!");
-      setFeedbackColor("success");
-      setCorrectCount(correctCount + 1);
+      if (timeLeft > 0) {
+        points = 10; 
+      } else {
+        points = 5;
+      }
+      setCorrectCount((prev) => prev + 1);
+      exp = 50; 
     } else {
-      setFeedback("Incorreta!");
-      setFeedbackColor("error");
-      setIncorrectCount(incorrectCount + 1);
+      setIncorrectCount((prev) => prev + 1);
     }
-
-    await addDoc(collection(db, "userPortugueseResponses"), {
+  
+    setQuizPoints((prev) => prev + points); 
+  
+    await addDoc(collection(db, "userPortugueseResponses"), { // Alterando o nome da coleção para "userPortugueseResponses"
       userId: user.uid,
-      question: currentQuestion.question, 
+      question: currentQuestion.question,
       selectedAnswer,
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
       schoolId: schoolId
     });
-
+  
     setAnswered(true);
   };
 
   const handleNextQuestion = () => {
-    setFeedback("");
     setSelectedAnswer("");
     setAnswered(false);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
+    setTimeLeft(120); 
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti();
-    setQuizFinished(true);
+    
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+  
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+  
+        const newExp = (userData.exp || 0) + (correctCount * 50); 
+        const newLevel = calculateLevel(newExp);  
+        const totalPoints = (userData.points || 0) + quizPoints; 
+  
+        await updateDoc(userRef, {
+          points: totalPoints, 
+          exp: newExp,
+          level: newLevel
+        });
+      }
+    }
+  
+    setQuizFinished(true); 
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -221,14 +312,14 @@ const PortugueseQuiz = () => {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
           <Typography variant="h3" gutterBottom>
-            <TextWithColor subject="portuguese" text={subject} />
+            <TextWithColor subject="portuguese" text={subject} /> {/* Alterando para Português */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Container>
             <Paper elevation={2} sx={{ borderRadius: '5px'}}>
               {quizFinished ? (
-                <QuizResults correctCount={correctCount} incorrectCount={incorrectCount} />
+                <QuizResults correctCount={correctCount} incorrectCount={incorrectCount} quizPoints={quizPoints} />
               ) : currentQuestion ? (
                 <QuizQuestion
                   question={currentQuestion}
@@ -237,11 +328,10 @@ const PortugueseQuiz = () => {
                   handleSubmit={handleSubmit}
                   handleNextQuestion={handleNextQuestion}
                   handleFinish={handleFinish}
-                  feedback={feedback}
-                  feedbackColor={feedbackColor}
                   answered={answered}
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={questions.length}
+                  timeLeft={timeLeft} 
                 />
               ) : (
                 <CircularProgress />
