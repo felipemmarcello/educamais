@@ -10,6 +10,29 @@ import TextWithColor from '../../../components/TextWithColors.jsx';
 import JSConfetti from 'js-confetti';
 import '../subjectsCSS/QuizStyles.css';
 
+const levelRequirements = {
+  1: 0,
+  2: 300,
+  3: 600,
+  4: 900,
+  5: 1200,
+  6: 1800,
+  7: 2600,
+  8: 3200,
+  9: 3800,
+  10: 5000
+};
+
+const calculateLevel = (exp) => {
+  let level = 1;
+  for (const [lvl, req] of Object.entries(levelRequirements)) {
+    if (exp >= req) {
+      level = parseInt(lvl);
+    }
+  }
+  return level;
+};
+
 const QuizQuestion = ({
   question,
   selectedAnswer,
@@ -19,42 +42,67 @@ const QuizQuestion = ({
   handleFinish,
   answered,
   currentQuestionIndex,
-  totalQuestions
+  totalQuestions,
+  timeLeft // New prop for timer
 }) => (
-  <div style={{ width: '720px', margin: '0, auto' }}>
-    <Typography variant="h6" style={{ marginTop: '5%', marginLeft: '5%', paddingTop: '2%', fontSize: '1.10rem', marginRight: '5%' }} gutterBottom>
+  <div style={{ width: '950px', margin: '0, auto' }}>
+
+    <Typography 
+      variant="h6" 
+      style={{ 
+        marginTop: '2%', 
+        marginLeft: '3%', 
+        paddingTop: '2%', 
+        fontSize: '1.10rem', 
+        marginRight: '5%', 
+        wordWrap: 'break-word',  // Força a quebra de linha
+        whiteSpace: 'normal'     // Garante que o texto respeite as quebras de linha
+      }} 
+      gutterBottom
+    >
+      <Typography variant="body1" style={{marginBottom: '1%' }}>
+        Temporizador: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')} | Termine a tempo para ganhar mais pontos! {/* Timer display */}
+      </Typography>
       {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
-    <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '5%', marginRight: '5%' }}>
-      <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
-        {question.answers.map((answer, index) => {
-          let backgroundColor = "inherit";
-          let color = "inherit";
-          if (answered) {
-            if (answer === question.correctAnswer) {
-              backgroundColor = "#00a86b";
-              color = "white";
-            } else if (answer === selectedAnswer) {
-              backgroundColor = "#e76b57";
-              color = "white";
-            }
-          }
-          return (
-            <FormControlLabel
-              key={index}
-              value={answer}
-              control={<Radio />}
-              sx={{ paddingBottom: '6px' }}
-              label={
-                <span style={{ backgroundColor: backgroundColor, color: color, padding: '5px 0px', borderRadius: '3px' }}>
-                  {answer}
-                </span>
+    <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '3%', marginRight: '3%' }}>
+          <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
+          {question.answers.map((answer, index) => {
+            let backgroundColor = "inherit";
+            let color = "inherit";
+            if (answered) {
+              if (answer === question.correctAnswer) {
+                backgroundColor = "#00a86b";
+                color = "white";
+              } else if (answer === selectedAnswer) {
+                backgroundColor = "#e76b57";
+                color = "white";
               }
-              disabled={answered}
-            />
-          );
-        })}
-      </RadioGroup>
+            }
+            return (
+              <FormControlLabel
+                key={index}
+                value={answer}
+                control={<Radio />}
+                sx={{ paddingBottom: '6px' }}
+                label={
+                  <span style={{
+                    backgroundColor: backgroundColor, 
+                    color: color, 
+                    padding: '5px 0px', 
+                    borderRadius: '3px',
+                    maxWidth: '100%', // Garante que o texto respeite a largura do container
+                    overflowWrap: 'break-word',  // Força a quebra de palavras longas
+                    whiteSpace: 'normal' // Respeita quebras de linha normais
+                  }}>
+                    {answer}
+                  </span>
+                }
+                disabled={answered}
+              />
+            );
+          })}
+        </RadioGroup>
       <div style={{ display: 'flex', marginTop: 20, marginBottom: '3%' }}>
         <Button
           variant="contained"
@@ -116,8 +164,20 @@ const ReligionQuiz = () => {
   const [schoolYear, setSchoolYear] = useState('');
   const [schoolId, setSchoolId] = useState('');
   const [quizPoints, setQuizPoints] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes timer
 
   const navigate = useNavigate();
+
+  // Timer effect
+  useEffect(() => {
+    let timer;
+    if (!answered && timeLeft > 0) {
+      timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [timeLeft, answered]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -179,10 +239,16 @@ const ReligionQuiz = () => {
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
     let points = 0;
+    let exp = 0;
 
     if (isCorrect) {
+      if (timeLeft > 0) {
+        points = 10; // If answered within time
+      } else {
+        points = 5; // If answered after time
+      }
       setCorrectCount(correctCount + 1);
-      points = 10;
+      exp = 50; // Correct answers gain 50 EXP
     } else {
       setIncorrectCount(incorrectCount + 1);
     }
@@ -200,29 +266,35 @@ const ReligionQuiz = () => {
     });
 
     setAnswered(true);
+
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const newExp = (userData.exp || 0) + exp;
+        const newLevel = calculateLevel(newExp);
+
+        await updateDoc(userRef, {
+          points: (userData.points || 0) + quizPoints,
+          exp: newExp,
+          level: newLevel
+        });
+      }
+    }
   };
 
   const handleNextQuestion = () => {
     setSelectedAnswer("");
     setAnswered(false);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
+    setTimeLeft(120); // Reset timer for next question
   };
 
   const handleFinish = async () => {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti();
     setQuizFinished(true);
-
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        const existingPoints = userDoc.data().points || 0;
-        await updateDoc(userRef, {
-          points: existingPoints + quizPoints
-        });
-      }
-    }
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -251,6 +323,7 @@ const ReligionQuiz = () => {
                   answered={answered}
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={questions.length}
+                  timeLeft={timeLeft} // Pass timeLeft to question component
                 />
               ) : (
                 <CircularProgress />
