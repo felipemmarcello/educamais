@@ -135,6 +135,13 @@ function CreateUsers({ user, onClose }) {
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
           ...(subject && { subject }),
+          // Adicionando campos de estudante
+          ...(role === 'student' && {
+            exp: 0,
+            correctAnswers: 0,
+            level: 1,
+            points: 0,
+          }),
         };
 
         await setDoc(doc(db, 'users', uid), userData);

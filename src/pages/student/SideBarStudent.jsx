@@ -144,7 +144,7 @@ function SideBarStudent() {
           </Typography>
 
           <Typography variant="body2" sx={{ color: '#FFFAFA'}}>
-            Nível: {user.level || 1}
+            Nível {user.level || 1}
           </Typography>
 
           <Box sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}>

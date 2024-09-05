@@ -208,7 +208,7 @@ const PhysicalEducationQuiz = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`)); // Certifique-se que a coleção seja relacionada ao quiz de Português
+      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`));
       let fetchedQuestions = querySnapshot.docs
         .map((doc) => doc.data())
         .filter((question) => question.subject === selectedSubject);
@@ -259,7 +259,7 @@ const PhysicalEducationQuiz = () => {
   
     setQuizPoints((prev) => prev + points); 
   
-    await addDoc(collection(db, "userPhysicalEducationResponses"), { 
+    await addDoc(collection(db, "userPhysicalEducationResponses"), {
       userId: user.uid,
       question: currentQuestion.question,
       selectedAnswer,
@@ -293,11 +293,13 @@ const PhysicalEducationQuiz = () => {
         const newExp = (userData.exp || 0) + (correctCount * 50); 
         const newLevel = calculateLevel(newExp);  
         const totalPoints = (userData.points || 0) + quizPoints; 
+        const correctAnswers = (userData.correctAnswers || 0) + correctCount; // Atualizando a contagem de respostas corretas
   
         await updateDoc(userRef, {
           points: totalPoints, 
           exp: newExp,
-          level: newLevel
+          level: newLevel,
+          correctAnswers // Adicionando o campo de respostas corretas
         });
       }
     }

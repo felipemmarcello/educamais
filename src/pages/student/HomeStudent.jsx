@@ -1,18 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Grid, Box, Typography, Container, Paper, Divider } from '@mui/material';
+import { Grid, Box, Typography, Container, Paper, Divider, Card } from '@mui/material';
 import UserContext from '../../contexts/UserContext.jsx';
 import { db } from '../../firebase/firebase.js';
 import { doc, onSnapshot, getDocs, query, collection, where } from 'firebase/firestore';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
+import level1 from '../../images/medals/level1.png';
+import level2 from '../../images/medals/level2.png';
+import level3 from '../../images/medals/level3.png';
+import level4 from '../../images/medals/level4.png';
+import level5 from '../../images/medals/level5.png';
 
 function HomeStudent() {
   const [user, setUser] = useState(null);
   const [totalQuestions, setTotalQuestions] = useState({});
   const [answeredQuestions, setAnsweredQuestions] = useState({});
-  const [activeIndex, setActiveIndex] = useState(0); // Definir o estado activeIndex
+  const [activeIndex, setActiveIndex] = useState(0); 
   const { globalUid } = useContext(UserContext);
 
-  const COLORS = ['#00C49F', '#f83515']; // Cores para respondidas e não respondidas
+  const COLORS = ['#00C49F', '#f83515']; 
 
   useEffect(() => {
     if (globalUid) {
@@ -65,7 +70,6 @@ function HomeStudent() {
     }
   }, [user, globalUid]);
 
-  // Função para alterar o activeIndex
   const onPieEnter = (_, index) => {
     setActiveIndex(index);
   };
@@ -115,6 +119,19 @@ function HomeStudent() {
         </text>
       </g>
     );
+  };
+
+  const getMedalImage = () => {
+    if (!user?.correctAnswers) return null;
+    const { correctAnswers } = user;
+    
+    if (correctAnswers >= 200) return { image: level5, level: 5 };
+    if (correctAnswers >= 120) return { image: level4, level: 4 };
+    if (correctAnswers >= 70) return { image: level3, level: 3 };
+    if (correctAnswers >= 30) return { image: level2, level: 2 };
+    if (correctAnswers >= 10) return { image: level1, level: 1 };
+    
+    return null;
   };
 
   const renderPieChart = () => {
@@ -168,14 +185,46 @@ function HomeStudent() {
           <li><Typography variant="body1">Participar das perguntas e respostas para testar seus conhecimentos.</Typography></li>
           <li><Typography variant="body1">Visualizar seu desempenho e progresso.</Typography></li>
         </ul>
-        
-        <Box>
-          <Grid container spacing={15} justifyContent="center">
-            <Grid item xs={12} md={8}>
-              {renderPieChart()}
-            </Grid>
+
+        <Grid container spacing={5} justifyContent="center">
+          <Grid item xs={6} md={5}>
+            {renderPieChart()}
           </Grid>
-        </Box>
+
+          {getMedalImage() && (
+            <Grid>
+              <Card
+                sx={{
+                  padding: '1rem',
+                  textAlign: 'center',
+                  marginTop: '20%',
+                  border: '3px solid #5589c4'
+                }}
+              >
+                <img
+                  alt={`Medalha Nível ${getMedalImage().level}`}
+                  src={getMedalImage().image}
+                  style={{ 
+                    width: '150px', 
+                    height: '150px', 
+                    marginBottom: '16px', 
+                    objectFit: 'contain'
+                  }}
+                />
+                <Typography variant="h6" sx={{ color: '#000000' }}>
+                  Medalha de Nível {getMedalImage().level}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#000000' }}>
+                  Parabéns por alcançar {user.correctAnswers} respostas corretas!
+                </Typography>
+
+                <Typography variant="body2" sx={{ color: '#000000' }}>
+                  Acerte mais perguntas para melhorar sua medalha!
+                </Typography>
+              </Card>
+            </Grid>
+          )}
+        </Grid>
       </Paper>
     </Container>
   );

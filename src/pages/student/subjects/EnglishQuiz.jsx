@@ -208,7 +208,7 @@ const EnglishQuiz = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`)); // Certifique-se que a coleção seja relacionada ao quiz de Português
+      const querySnapshot = await getDocs(collection(db, `${subjectId}Questions`));
       let fetchedQuestions = querySnapshot.docs
         .map((doc) => doc.data())
         .filter((question) => question.subject === selectedSubject);
@@ -293,11 +293,13 @@ const EnglishQuiz = () => {
         const newExp = (userData.exp || 0) + (correctCount * 50); 
         const newLevel = calculateLevel(newExp);  
         const totalPoints = (userData.points || 0) + quizPoints; 
+        const correctAnswers = (userData.correctAnswers || 0) + correctCount; // Atualizando a contagem de respostas corretas
   
         await updateDoc(userRef, {
           points: totalPoints, 
           exp: newExp,
-          level: newLevel
+          level: newLevel,
+          correctAnswers // Adicionando o campo de respostas corretas
         });
       }
     }
@@ -312,7 +314,7 @@ const EnglishQuiz = () => {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2, marginBottom: '3%' }}>
           <Typography variant="h3" gutterBottom>
-            <TextWithColor subject="english" text={subject} />
+            <TextWithColor subject="English" text={subject} />
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

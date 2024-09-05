@@ -293,12 +293,13 @@ const ReligionQuiz = () => {
         const newExp = (userData.exp || 0) + (correctCount * 50); 
         const newLevel = calculateLevel(newExp);  
         const totalPoints = (userData.points || 0) + quizPoints; 
+        const correctAnswers = (userData.correctAnswers || 0) + correctCount; // Atualizando a contagem de respostas corretas
   
-        
         await updateDoc(userRef, {
           points: totalPoints, 
           exp: newExp,
-          level: newLevel
+          level: newLevel,
+          correctAnswers // Adicionando o campo de respostas corretas
         });
       }
     }
