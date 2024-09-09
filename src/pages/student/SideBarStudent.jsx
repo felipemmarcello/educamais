@@ -124,18 +124,24 @@ function SideBarStudent() {
           <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main', marginRight: 2 }}>{user.name[0]}</Avatar>
           <ListItemText 
             primary={
-              <Typography  variant="h6" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA' }}>
+              <Typography variant="h6" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA' }}>
                 {formatUserName(user.name)}
               </Typography>
             } 
             secondary={
-              <Typography variant="caption" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA' }}>
-                {userRoleDisplayName}
-              </Typography>
+              <Box>
+                <Typography variant="caption" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA', display: 'block' }}>
+                  {`${user.schoolYear || 'Ano'}º ${user.classRoom || 'Turma'}`}
+                </Typography>
+                <Typography variant="caption" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA', marginTop: '5px' }}>
+                  {userRoleDisplayName}
+                </Typography>
+              </Box>
             } 
           />
-          
         </ListItem>
+
+
 
         <ListItem sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: '1px solid #dedede', borderColor: 'black', backgroundColor: '#5589c4'}}>
           

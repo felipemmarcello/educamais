@@ -15,6 +15,7 @@ function CreateUsers({ user, onClose }) {
   const [birthdate, setBirthdate] = useState('');
   const [schoolYear, setSchoolYear] = useState('');
   const [subject, setSubject] = useState('');
+  const [classRoom, setClassRoom] = useState(''); // Novo campo de texto para sala
   const [status, setStatus] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
@@ -33,6 +34,7 @@ function CreateUsers({ user, onClose }) {
       setBirthdate(user.birthdate || '');
       setSchoolYear(user.schoolYear || '');
       setSubject(user.subject || '');
+      setClassRoom(user.classRoom || ''); // Setando sala
     }
   }, [user]);
 
@@ -59,6 +61,7 @@ function CreateUsers({ user, onClose }) {
     setBirthdate('');
     setSchoolYear('');
     setSubject('');
+    setClassRoom(''); // Resetando sala ao trocar o papel
     setErrorFields({});
   };
 
@@ -95,6 +98,9 @@ function CreateUsers({ user, onClose }) {
     if (role === 'student' && !schoolYear) {
       validationErrors.schoolYear = true;
     }
+    if (role === 'student' && !classRoom) { // Validando sala
+      validationErrors.classRoom = true;
+    }
     if (role === 'professor' && !subject) {
       validationErrors.subject = true;
     }
@@ -117,6 +123,7 @@ function CreateUsers({ user, onClose }) {
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
           ...(subject && { subject }),
+          ...(classRoom && { classRoom }), // Salvando sala
         };
         await updateDoc(doc(db, 'users', uid), userData);
 
@@ -135,7 +142,7 @@ function CreateUsers({ user, onClose }) {
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
           ...(subject && { subject }),
-          // Adicionando campos de estudante
+          ...(classRoom && { classRoom }), // Salvando sala
           ...(role === 'student' && {
             exp: 0,
             correctAnswers: 0,
@@ -175,7 +182,6 @@ function CreateUsers({ user, onClose }) {
                   '&.Mui-focused fieldset': {
                     borderColor: '#c5c5c5',
                   },
-
                 }, }} margin="normal">
             <InputLabel id="role-select-label">Papel</InputLabel>
             <Select
@@ -218,6 +224,7 @@ function CreateUsers({ user, onClose }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   margin="normal"
+                  required
                   error={!!errorFields.password}
                   helperText={errorFields.password && (user ? "Campo obrigatório" : "Campo obrigatório")}
                   disabled={!!user}
@@ -236,7 +243,7 @@ function CreateUsers({ user, onClose }) {
                   helperText={errorFields.email && "E-mail já utilizado."}
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end">
+                      <InputAdornment position="end" sx={{fontSize: '12px'}}>
                         @{emailDomain}
                       </InputAdornment>
                     ),
@@ -286,32 +293,50 @@ function CreateUsers({ user, onClose }) {
                     />
                   </Grid>
                   {role === 'student' && (
-                    <Grid item xs={4} sm={4}>
-                      <FormControl fullWidth margin="normal" error={!!errorFields.schoolYear}>
-                        <InputLabel id="school-year-select-label">Ano Escolar</InputLabel>
-                        <Select
-                          labelId="school-year-select-label"
-                          id="school-year-select"
-                          value={schoolYear}
-                          label="Ano Escolar"
-                          onChange={(e) => setSchoolYear(e.target.value)}
-                          required
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '&.Mui-focused fieldset': {
-                                borderColor: 'gray',
+                    <>
+                      <Grid item xs={4} sm={4}>
+                        <FormControl fullWidth margin="normal" error={!!errorFields.schoolYear}>
+                          <InputLabel id="school-year-select-label">Ano Escolar</InputLabel>
+                          <Select
+                            labelId="school-year-select-label"
+                            id="school-year-select"
+                            value={schoolYear}
+                            label="Ano Escolar"
+                            onChange={(e) => setSchoolYear(e.target.value)}
+                            required
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                  borderColor: 'gray',
+                                },
                               },
-                            },
-                          }}
-                        >
-                          <MenuItem value="6">6º ano</MenuItem>
-                          <MenuItem value="7">7º ano</MenuItem>
-                          <MenuItem value="8">8º ano</MenuItem>
-                          <MenuItem value="9">9º ano</MenuItem>
-                        </Select>
-                        {errorFields.schoolYear && <Typography color="error">Campo obrigatório</Typography>}
-                      </FormControl>
-                    </Grid>
+                            }}
+                          >
+                            <MenuItem value="6">6º ano</MenuItem>
+                            <MenuItem value="7">7º ano</MenuItem>
+                            <MenuItem value="8">8º ano</MenuItem>
+                            <MenuItem value="9">9º ano</MenuItem>
+                          </Select>
+                          {errorFields.schoolYear && <Typography color="error">Campo obrigatório</Typography>}
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={4} sm={4}>
+                        <TextField
+                          fullWidth
+                          variant="outlined"
+                          label="Turma (A, B, ...)"
+                          value={classRoom}
+                          onChange={(e) => setClassRoom(e.target.value)}
+                          margin="normal"
+                          required
+                          error={!!errorFields.classRoom}
+                          helperText={errorFields.classRoom && "Campo obrigatório"}
+                        />
+                        <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+                          Mantenha um padrão da escolha de turmas!
+                        </Typography>
+                      </Grid>
+                    </>
                   )}
                   {role === 'professor' && (
                     <Grid item xs={4} sm={4}>
