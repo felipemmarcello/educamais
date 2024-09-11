@@ -189,6 +189,15 @@ function SideBarStudent() {
         </ListItem>
 
         <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/student/leaderboard">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <MenuBookIcon />
+            </ListItemIcon>
+            <ListItemText primary="Classificação" sx={{ color: '#FFFAFA'}} />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/student/dashboard">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
               <MenuBookIcon />

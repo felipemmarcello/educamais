@@ -30,6 +30,7 @@ import Dashboard from './pages/student/dashboard/dashboard.jsx';
 import DashboardProfessor from './pages/professor/DashboardProfessor.jsx';
 import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
 import DashboardAdminEM from './pages/AdminEducaMais/DashboardEM.jsx';
+import Leaderboard from './pages/student/dashboard/leaderboard.jsx';
 
 
 function App() {
@@ -80,6 +81,7 @@ function App() {
                     <Route path="subjects/:subjectId" element={<SubjectList />} />
                     <Route path="subjects/:subjectId/:selectedSubject" element={<QuizRouter />} />
                     <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="leaderboard" element={<Leaderboard />} />
                   </Route>
 
                   <Route path="/professor" element={<ProtectedProfessorRoute><ProfessorLayout /></ProtectedProfessorRoute>}>
