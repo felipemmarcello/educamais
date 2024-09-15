@@ -266,7 +266,9 @@ const HistoryQuiz = () => {
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
-      schoolId: schoolId
+      schoolId: schoolId,
+      schoolSubject: 'history',
+      points: isCorrect ? points : 0, 
     });
   
     setAnswered(true);

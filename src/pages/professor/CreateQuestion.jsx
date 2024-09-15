@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { doc, setDoc, collection, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebase.js';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, InputAdornment } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -26,11 +26,11 @@ const subjectDetails = {
   art: { name: 'Arte' },
   english: { name: 'Língua Inglesa' },
   physicalEducation: { name: 'Educação Física' },
-  religion: {name: 'Ensino Religioso'},
+  religion: { name: 'Ensino Religioso' }
 };
 
 function CreateQuestion({ question, onClose }) {
-  const [subject, setSubject] = useState(question ? question.subject : '');
+  const [schoolSubject, setSchoolSubject] = useState(question ? question.schoolSubject : '');
   const [subjectField, setSubjectField] = useState(question ? question.subject : '');
   const [questionText, setQuestionText] = useState(question ? question.question : '');
   const [answers, setAnswers] = useState(question ? question.answers : ['', '', '', '', '']);
@@ -40,7 +40,9 @@ function CreateQuestion({ question, onClose }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [errorFields, setErrorFields] = useState({});
   const [schoolId, setSchoolId] = useState('');
-  const [userSubject, setUserSubject] = useState('');
+  const [userSchoolSubject, setUserSchoolSubject] = useState(''); // Armazena o schoolSubject do professor
+  const [classRoom, setClassRoom] = useState([]);
+  const [selectedClassRoom, setSelectedClassRoom] = useState('');
 
   const { globalUid } = useContext(UserContext);
 
@@ -50,12 +52,37 @@ function CreateQuestion({ question, onClose }) {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         setSchoolId(userData.schoolId);
-        setUserSubject(userData.subject);
+        setUserSchoolSubject(userData.schoolSubject); // Define o schoolSubject do professor
       }
     };
 
     fetchAdminMasterDetails();
   }, [globalUid]);
+
+  useEffect(() => {
+    const fetchClassRoom = async () => {
+      if (schoolYear && schoolId) {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, "users"),
+            where("schoolId", "==", schoolId),
+            where("schoolYear", "==", schoolYear)
+          )
+        );
+
+        // Mapeia as classRoom e remove duplicatas
+        const room = querySnapshot.docs.map(doc => doc.data().classRoom);
+        const uniqueRooms = Array.from(new Set(room)).map((roomName, index) => ({
+          id: index,
+          name: roomName
+        }));
+
+        setClassRoom(uniqueRooms);
+      }
+    };
+
+    fetchClassRoom();
+  }, [schoolYear, schoolId]);
 
   const handleDialogClose = () => {
     setOpenDialog(false);
@@ -67,8 +94,8 @@ function CreateQuestion({ question, onClose }) {
     setErrorFields({});
     let validationErrors = {};
 
-    if (!subject) {
-      validationErrors.subject = true;
+    if (!schoolSubject) {
+      validationErrors.schoolSubject = true;
     }
     if (!subjectField) {
       validationErrors.subjectField = true;
@@ -93,15 +120,17 @@ function CreateQuestion({ question, onClose }) {
 
     try {
       const questionData = {
+        schoolSubject, // Salvando o schoolSubject
         subject: subjectField, 
         question: questionText,
         answers,
         correctAnswer: answers[correctAnswer],
         schoolId,
         schoolYear,
+        classRoom: selectedClassRoom,
       };
 
-      const collectionName = subjectCollections[subject];
+      const collectionName = subjectCollections[schoolSubject];
       if (question) {
         // Update existing question
         const questionRef = doc(db, collectionName, question.id);
@@ -140,35 +169,27 @@ function CreateQuestion({ question, onClose }) {
           </Typography>
         </div>
         <Box sx={{ display: 'flex', mb: 1 }}>
-          <FormControl sx={{ width: 220, mb: 1,
-                  '& .MuiOutlinedInput-root': {
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#c5c5c5',
-                  },
-                }, }} margin="normal">
-            <InputLabel id="subject-select-label">Matéria</InputLabel>
+          <FormControl sx={{ width: 220, mb: 1 }} margin="normal">
+            <InputLabel id="school-subject-select-label">Matéria</InputLabel>
             <Select
-              labelId="subject-select-label"
-              id="subject-select"
-              value={subject}
+              labelId="school-subject-select-label"
+              id="school-subject-select"
+              value={schoolSubject}
               label="Matéria"
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => setSchoolSubject(e.target.value)}
             >
-              <MenuItem value={userSubject}>{subjectDetails[userSubject]?.name}</MenuItem>
+              {/* Exibe apenas o schoolSubject do professor */}
+              {userSchoolSubject && (
+                <MenuItem value={userSchoolSubject}>{subjectDetails[userSchoolSubject]?.name}</MenuItem>
+              )}
             </Select>
-            {errorFields.subject && <Typography color="error">Campo obrigatório</Typography>}
+            {errorFields.schoolSubject && <Typography color="error">Campo obrigatório</Typography>}
           </FormControl>
         </Box>
 
-        {subject && (
+        {schoolSubject && (
           <>
-            <div style={{ display: 'flex' }}>
-                <Typography variant="h6" sx={{ mb: 0 }}>
-                    Questão 
-                </Typography>
-            </div>
-
-            <Grid container spacing={0} sx= {{paddingTop: '-30px'}}>
+            <Grid container spacing={0}>
               <Grid item xs={2.5}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="school-year-select-label">Ano Escolar</InputLabel>
@@ -178,7 +199,6 @@ function CreateQuestion({ question, onClose }) {
                     value={schoolYear}
                     label="Ano Escolar"
                     onChange={(e) => setSchoolYear(e.target.value)}
-                    sx={{ mb: 0 }}
                   >
                     <MenuItem value="6">6º ano</MenuItem>
                     <MenuItem value="7">7º ano</MenuItem>
@@ -189,7 +209,22 @@ function CreateQuestion({ question, onClose }) {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={0.5}>
+              <Grid item xs={2.5} sx={{ marginLeft: '2%' }}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="class-room-select-label">Turma</InputLabel>
+                  <Select
+                    labelId="class-room-select-label"
+                    id="class-room-select"
+                    value={selectedClassRoom}
+                    label="Turma"
+                    onChange={(e) => setSelectedClassRoom(e.target.value)}
+                    disabled={!classRoom.length}
+                  >
+                    {classRoom.map((room) => (
+                      <MenuItem key={room.id} value={room.name}>{room.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
 
               <Grid item xs={7.8}>
@@ -203,7 +238,6 @@ function CreateQuestion({ question, onClose }) {
                   required
                   error={!!errorFields.subjectField}
                   helperText={errorFields.subjectField && "Campo obrigatório"}
-                  sx={{ mb: 0 }}
                 />
               </Grid>
 
@@ -218,7 +252,6 @@ function CreateQuestion({ question, onClose }) {
                   required
                   error={!!errorFields.question}
                   helperText={errorFields.question && "Campo obrigatório"}
-                  sx={{ mb: 0 }}
                 />
               </Grid>
 
@@ -233,14 +266,14 @@ function CreateQuestion({ question, onClose }) {
                     required
                     error={!!errorFields.answers}
                     helperText={errorFields.answers && "Todas as respostas são obrigatórias"}
-                    sx={{ mb: 0 }}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">{String.fromCharCode(97 + index)})</InputAdornment>,
                     }}
                   />
                 </Grid>
               ))}
-                <Grid item xs={6}>
+
+              <Grid item xs={6}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="correct-answer-select-label">Resposta Correta</InputLabel>
                   <Select
@@ -249,7 +282,6 @@ function CreateQuestion({ question, onClose }) {
                     value={correctAnswer}
                     label="Resposta Correta"
                     onChange={(e) => setCorrectAnswer(e.target.value)}
-                    sx={{ mb: 0 }}
                   >
                     {answers.map((answer, index) => (
                       <MenuItem key={index} value={index}>
@@ -261,6 +293,7 @@ function CreateQuestion({ question, onClose }) {
                 </FormControl>
               </Grid>
             </Grid>
+
             <div style={{ display: 'flex', justifyContent: 'end' }}>
               <Button
                 variant="contained"

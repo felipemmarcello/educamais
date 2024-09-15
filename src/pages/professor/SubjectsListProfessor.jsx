@@ -26,7 +26,7 @@ const SubjectsListProfessor = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [schoolId, setSchoolId] = useState('');
-  const [userSubject, setUserSubject] = useState('');
+  const [userSchoolSubject, setUserSchoolSubject] = useState('');
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToEdit, setQuestionToEdit] = useState(null);
@@ -52,7 +52,7 @@ const SubjectsListProfessor = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         setSchoolId(userData.schoolId);
-        setUserSubject(userData.subject);
+        setUserSchoolSubject(userData.schoolSubject);
       }
     };
 
@@ -60,9 +60,9 @@ const SubjectsListProfessor = () => {
   }, [globalUid]);
 
   useEffect(() => {
-    if (schoolId && userSubject) {
+    if (schoolId && userSchoolSubject) {
       const fetchSubjectsAndQuestions = async () => {
-        const q = query(collection(db, `${userSubject}Questions`), where("schoolId", "==", schoolId));
+        const q = query(collection(db, `${userSchoolSubject}Questions`), where("schoolId", "==", schoolId));
         const querySnapshot = await getDocs(q);
         let fetchedSubjects = new Set();
         let fetchedQuestions = [];
@@ -82,7 +82,7 @@ const SubjectsListProfessor = () => {
 
       fetchSubjectsAndQuestions();
     }
-  }, [schoolId, userSubject, subjectId]);
+  }, [schoolId, userSchoolSubject, subjectId]);
 
   const handleNavigation = (subject) => {
     setSelectedSubject(subject);
@@ -120,7 +120,7 @@ const SubjectsListProfessor = () => {
   const handleDeleteQuestion = async () => {
     if (questionToDelete) {
       try {
-        await deleteDoc(doc(db, `${userSubject}Questions`, questionToDelete));
+        await deleteDoc(doc(db, `${userSchoolSubject}Questions`, questionToDelete));
         setQuestions((prevQuestions) => prevQuestions.filter(q => q.id !== questionToDelete));
         handleDeleteDialogClose();
       } catch (error) {
@@ -202,7 +202,7 @@ const SubjectsListProfessor = () => {
                   <Card sx={{ width: '100%', mb: 0 }}>
                     <CardContent>
                       <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.875rem', mt: 0, marginBottom: '5px' }}>
-                        Questão do {question.schoolYear}º ano
+                        Questão do {question.schoolYear}º ano {question.classRoom}
                       </Typography>
                       <Typography variant="h6" sx={{ fontSize: '1rem' }}>{question.question}</Typography>
                       <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.875rem', mt: 1 }}>Alternativas:</Typography>

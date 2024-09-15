@@ -123,10 +123,10 @@ function ListUsers() {
 
     const getUserSecondaryText = (user) => {
         if (user.role === 'Professor') {
-            return `Papel: ${user.role} - Matéria: ${subjectsDisplayNames[user.subject] || user.subject}`;
+            return `Papel: ${user.role} - Matéria: ${subjectsDisplayNames[user.schoolSubject] || user.schoolSubject}`;
         }
         if (user.role === 'Estudante') {
-            return `Papel: ${user.role} - Ano: ${yearDisplayNames[user.schoolYear] || user.schoolYear}`;
+            return `Papel: ${user.role} - Ano: ${yearDisplayNames[user.schoolYear] || user.schoolYear} ${user.classRoom}`;
         }
         return `Papel: ${user.role}`;
     };

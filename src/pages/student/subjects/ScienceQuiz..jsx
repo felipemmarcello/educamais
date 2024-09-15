@@ -266,7 +266,9 @@ const ScienceQuiz = () => {
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
-      schoolId: schoolId
+      schoolId: schoolId,
+      schoolSubject: 'science',
+      points: isCorrect ? points : 0, 
     });
   
     setAnswered(true);

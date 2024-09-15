@@ -1,10 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import AddHomeWorkIcon from '@mui/icons-material/AddHomeWork';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import { db, auth } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -123,7 +123,7 @@ function SideBarAdminEM() {
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/AdminEM/create-school">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <PersonAddAlt1Icon />
+              <AddHomeWorkIcon />
             </ListItemIcon>
             <ListItemText primary="Criar Escola" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
@@ -132,7 +132,7 @@ function SideBarAdminEM() {
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/AdminEM/list-school">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <PeopleAltIcon />
+              <HomeWorkIcon />
             </ListItemIcon>
             <ListItemText primary="Escolas" sx={{ color: '#FFFAFA'}}/>
           </ListItemButton>

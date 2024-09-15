@@ -33,9 +33,9 @@ function HomeProfessor() {
           const userData = { id: doc.id, ...doc.data() };
           setUser(userData);
 
-          if (userData.schoolId && userData.subject) {
+          if (userData.schoolId && userData.schoolSubject) {
             const contentQuery = query(
-              collection(db, `${userData.subject}Questions`),
+              collection(db, `${userData.schoolSubject}Questions`),
               where('schoolId', '==', userData.schoolId)
             );
             const contentSnapshot = await getDocs(contentQuery);

@@ -31,6 +31,7 @@ import DashboardProfessor from './pages/professor/DashboardProfessor.jsx';
 import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
 import DashboardAdminEM from './pages/AdminEducaMais/DashboardEM.jsx';
 import Leaderboard from './pages/student/dashboard/leaderboard.jsx';
+import LeaderboardProfessor from './pages/professor/leaderboardProfessor.jsx';
 
 
 function App() {
@@ -89,6 +90,7 @@ function App() {
                     <Route path="create-question" element={<CreateQuestion />} />
                     <Route path="subjects" element={<SubjectsPageProfessor />} />
                     <Route path="subjects/:subjectId" element={<SubjectsListProfessor />} />
+                    <Route path="leaderboard" element={<LeaderboardProfessor />} />
                     <Route path="dashboard" element={<DashboardProfessor />} />
                   </Route>
                 </Routes>

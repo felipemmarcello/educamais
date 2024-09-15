@@ -125,11 +125,11 @@ function HomeStudent() {
     if (!user?.correctAnswers) return null;
     const { correctAnswers } = user;
     
-    if (correctAnswers >= 200) return { image: level5, level: 5 };
-    if (correctAnswers >= 120) return { image: level4, level: 4 };
+    if (correctAnswers >= 250) return { image: level5, level: 5 };
+    if (correctAnswers >= 150) return { image: level4, level: 4 };
     if (correctAnswers >= 70) return { image: level3, level: 3 };
     if (correctAnswers >= 30) return { image: level2, level: 2 };
-    if (correctAnswers >= 10) return { image: level1, level: 1 };
+    if (correctAnswers >= 15) return { image: level1, level: 1 };
     
     return null;
   };
@@ -187,7 +187,7 @@ function HomeStudent() {
         </ul>
 
         <Grid container spacing={5} justifyContent="center">
-          <Grid item xs={6} md={5}>
+          <Grid item xs={6} md={6}>
             {renderPieChart()}
           </Grid>
 

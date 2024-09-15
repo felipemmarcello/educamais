@@ -266,7 +266,9 @@ const ArtQuiz = () => {
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
-      schoolId: schoolId
+      schoolId: schoolId,
+      schoolSubject: 'art',
+      points: isCorrect ? points : 0, 
     });
   
     setAnswered(true);

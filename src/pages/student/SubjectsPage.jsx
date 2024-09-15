@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, Box, Card, CardContent, CardActionArea } from '@mui/material';
-import bookSchool from '../../images/bookSchool.png';
+import books from '../../images/books.png';
 import portugueseIcon from '../../images/portugueseIcon.png';
 import mathematicsIcon from '../../images/mathematicsIcon.png';
 import scienceIcon from '../../images/scienceIcon.png';
@@ -63,7 +63,7 @@ const SubjectsPage = () => {
           overflow: 'visible',
           marginLeft: '5%',
         }}>
-          <img src={bookSchool} alt="bookSchool" style={{ width: '150px' }} />
+          <img src={books} alt="books" style={{ width: '150px' }} />
         </Box>
       </Box>
 

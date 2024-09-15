@@ -266,8 +266,11 @@ const ReligionQuiz = () => {
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
-      schoolId: schoolId
+      schoolId: schoolId,
+      schoolSubject: 'religion',
+      points: isCorrect ? points : 0,
     });
+    
   
     setAnswered(true);
   };

@@ -5,6 +5,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { db, auth } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -136,6 +137,15 @@ function SideBarProfessor() {
               <QuestionAnswerIcon />
             </ListItemIcon>
             <ListItemText primary="Questões" sx={{ color: '#FFFAFA'}} />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{p: 0.5}}>
+          <ListItemButton component={Link} to="/professor/leaderboard">
+            <ListItemIcon sx={{ color: '#FFFAFA'}}>
+              <LeaderboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Classificação" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
         </ListItem>
 

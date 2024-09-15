@@ -3,6 +3,8 @@ import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemT
 import HomeIcon from '@mui/icons-material/Home';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { db, auth } from '../../firebase/firebase.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -191,7 +193,7 @@ function SideBarStudent() {
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/student/leaderboard">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <MenuBookIcon />
+              <LeaderboardIcon />
             </ListItemIcon>
             <ListItemText primary="Classificação" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>
@@ -200,7 +202,7 @@ function SideBarStudent() {
         <ListItem disablePadding sx={{p: 0.5}}>
           <ListItemButton component={Link} to="/student/dashboard">
             <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <MenuBookIcon />
+              <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
           </ListItemButton>

@@ -266,7 +266,9 @@ const MathematicsQuiz = () => {
       isCorrect: isCorrect,
       subject: currentQuestion.subject,
       schoolYear: schoolYear,
-      schoolId: schoolId
+      schoolId: schoolId,
+      schoolSubject: 'mathematics',
+      points: isCorrect ? points : 0, 
     });
   
     setAnswered(true);

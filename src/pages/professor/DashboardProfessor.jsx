@@ -29,7 +29,7 @@ const subjectDetails = {
 const DashboardProfessor = () => {
   const { globalUid } = useContext(UserContext);
   const [schoolId, setSchoolId] = useState('');
-  const [subject, setSubject] = useState('');
+  const [schoolSubject, setSchoolSubject] = useState(''); // Alterado para schoolSubject
   const [contents, setContents] = useState([]);
   const [students, setStudents] = useState([]);
   const [selectedContent, setSelectedContent] = useState('');
@@ -48,7 +48,7 @@ const DashboardProfessor = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         setSchoolId(userData.schoolId);
-        setSubject(userData.subject);
+        setSchoolSubject(userData.schoolSubject); // Alterado para usar schoolSubject
       }
     };
 
@@ -57,10 +57,10 @@ const DashboardProfessor = () => {
 
   useEffect(() => {
     const fetchContents = async () => {
-      if (!schoolId || !subject) return;
+      if (!schoolId || !schoolSubject) return;
 
-      const contentSnapshot = await getDocs(query(collection(db, `${subject}Questions`), where('schoolId', '==', schoolId)));
-      const contentList = contentSnapshot.docs.map(doc => doc.data().subject);
+      const contentSnapshot = await getDocs(query(collection(db, `${schoolSubject}Questions`), where('schoolId', '==', schoolId)));
+      const contentList = contentSnapshot.docs.map(doc => doc.data().subject); // Ainda usa subject para conteúdos
       const uniqueContentList = [...new Set(contentList)];
       const contentQuestionCounts = uniqueContentList.map(content => {
         return {
@@ -72,7 +72,7 @@ const DashboardProfessor = () => {
     };
 
     fetchContents();
-  }, [schoolId, subject]);
+  }, [schoolId, schoolSubject]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -88,9 +88,9 @@ const DashboardProfessor = () => {
 
   useEffect(() => {
     const fetchResponses = async () => {
-      if (!selectedContent || !schoolId || !subject) return;
+      if (!selectedContent || !schoolId || !schoolSubject) return;
 
-      const responsesSnapshot = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('subject', '==', selectedContent)));
+      const responsesSnapshot = await getDocs(query(collection(db, `user${schoolSubject.charAt(0).toUpperCase() + schoolSubject.slice(1)}Responses`), where('subject', '==', selectedContent)));
       const responseList = responsesSnapshot.docs.map(doc => doc.data());
 
       const answeredStudentIds = responseList.map(response => response.userId);
@@ -101,18 +101,18 @@ const DashboardProfessor = () => {
     };
 
     fetchResponses();
-  }, [selectedContent, schoolId, subject, students]);
+  }, [selectedContent, schoolId, schoolSubject, students]);
 
   useEffect(() => {
     const fetchAllResponsesForSubject = async () => {
-      if (!schoolId || !subject) return;
+      if (!schoolId || !schoolSubject) return;
 
       const responseCounts = {};
       for (let student of students) {
         responseCounts[student.id] = { ...student, count: 0 };
       }
 
-      const responsesSnapshot = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('schoolId', '==', schoolId)));
+      const responsesSnapshot = await getDocs(query(collection(db, `user${schoolSubject.charAt(0).toUpperCase() + schoolSubject.slice(1)}Responses`), where('schoolId', '==', schoolId)));
       responsesSnapshot.docs.forEach(doc => {
         const data = doc.data();
         if (responseCounts[data.userId]) {
@@ -124,12 +124,12 @@ const DashboardProfessor = () => {
     };
 
     fetchAllResponsesForSubject();
-  }, [schoolId, students, subject]);
+  }, [schoolId, students, schoolSubject]);
 
   const fetchStudentPerformance = async (studentId, contentName) => {
-    if (!studentId || !contentName || !subject) return { correct: 0, incorrect: 0 };
+    if (!studentId || !contentName || !schoolSubject) return { correct: 0, incorrect: 0 };
 
-    const responsesSnapshot = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('userId', '==', studentId), where('subject', '==', contentName)));
+    const responsesSnapshot = await getDocs(query(collection(db, `user${schoolSubject.charAt(0).toUpperCase() + schoolSubject.slice(1)}Responses`), where('userId', '==', studentId), where('subject', '==', contentName)));
     let correct = 0;
     let incorrect = 0;
 
@@ -264,10 +264,10 @@ const DashboardProfessor = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, paddingTop: '3.5%', paddingBottom: '1.5%' }}>
           <Typography variant="h4" gutterBottom style={{ marginRight: '14px' }}>
-            {`${subjectDetails[subject]?.name || subject}`}
+            {`${subjectDetails[schoolSubject]?.name || schoolSubject}`} {/* Alterado para schoolSubject */}
           </Typography>
-          {subjectDetails[subject] && (
-            <img src={subjectDetails[subject].icon} alt={`${subjectDetails[subject].name} icon`} style={{ marginBottom: '0.80%', width: '40px' }} />
+          {subjectDetails[schoolSubject] && (
+            <img src={subjectDetails[schoolSubject].icon} alt={`${subjectDetails[schoolSubject].name} icon`} style={{ marginBottom: '0.80%', width: '40px' }} />
           )}
         </Box>
         
@@ -356,7 +356,7 @@ const DashboardProfessor = () => {
                         {`${student.name}`}
                       </Typography>
                       <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
-                        {`${student.schoolYear}º ano`}
+                        {`${student.schoolYear}º ano ${student.classRoom}`}
                       </Typography>
                     </Box>
                   ))}
@@ -371,7 +371,7 @@ const DashboardProfessor = () => {
                         {`${student.name}`}
                       </Typography>
                       <Typography variant="body2" sx={{ fontFamily: 'Arial', fontSize: 14, color: 'gray', marginBottom: '2%' }}>
-                        {`${student.schoolYear}º ano`}
+                        {`${student.schoolYear}º ano ${student.classRoom}`}
                       </Typography>
                     </Box>
                   ))}

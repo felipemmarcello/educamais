@@ -14,7 +14,7 @@ function CreateUsers({ user, onClose }) {
   const [gender, setGender] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [schoolYear, setSchoolYear] = useState('');
-  const [subject, setSubject] = useState('');
+  const [schoolSubject, setSchoolSubject] = useState('');
   const [classRoom, setClassRoom] = useState(''); // Novo campo de texto para sala
   const [status, setStatus] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
@@ -33,7 +33,7 @@ function CreateUsers({ user, onClose }) {
       setGender(user.gender || '');
       setBirthdate(user.birthdate || '');
       setSchoolYear(user.schoolYear || '');
-      setSubject(user.subject || '');
+      setSchoolSubject(user.schoolSubject || '');
       setClassRoom(user.classRoom || ''); // Setando sala
     }
   }, [user]);
@@ -60,7 +60,7 @@ function CreateUsers({ user, onClose }) {
     setGender('');
     setBirthdate('');
     setSchoolYear('');
-    setSubject('');
+    setSchoolSubject('');
     setClassRoom(''); // Resetando sala ao trocar o papel
     setErrorFields({});
   };
@@ -101,8 +101,8 @@ function CreateUsers({ user, onClose }) {
     if (role === 'student' && !classRoom) { // Validando sala
       validationErrors.classRoom = true;
     }
-    if (role === 'professor' && !subject) {
-      validationErrors.subject = true;
+    if (role === 'professor' && !schoolSubject) {
+      validationErrors.schoolSubject = true;
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -122,7 +122,7 @@ function CreateUsers({ user, onClose }) {
           schoolId,
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
-          ...(subject && { subject }),
+          ...(schoolSubject && { schoolSubject }),
           ...(classRoom && { classRoom }), // Salvando sala
         };
         await updateDoc(doc(db, 'users', uid), userData);
@@ -141,7 +141,7 @@ function CreateUsers({ user, onClose }) {
           schoolId,
           ...(role !== 'admin' && { gender, birthdate }),
           ...(schoolYear && { schoolYear }),
-          ...(subject && { subject }),
+          ...(schoolSubject && { schoolSubject }),
           ...(classRoom && { classRoom }), // Salvando sala
           ...(role === 'student' && {
             exp: 0,
@@ -340,14 +340,14 @@ function CreateUsers({ user, onClose }) {
                   )}
                   {role === 'professor' && (
                     <Grid item xs={4} sm={4}>
-                      <FormControl fullWidth margin="normal" error={!!errorFields.subject}>
-                        <InputLabel id="subject-select-label">Matéria</InputLabel>
+                      <FormControl fullWidth margin="normal" error={!!errorFields.schoolSubject}>
+                        <InputLabel id="schoolSubject-select-label">Matéria</InputLabel>
                         <Select
-                          labelId="subject-select-label"
-                          id="subject-select"
-                          value={subject}
+                          labelId="schoolSubject-select-label"
+                          id="schoolSubject-select"
+                          value={schoolSubject}
                           label="Matéria"
-                          onChange={(e) => setSubject(e.target.value)}
+                          onChange={(e) => setSchoolSubject(e.target.value)}
                           required
                           sx={{
                             '& .MuiOutlinedInput-root': {
@@ -367,7 +367,7 @@ function CreateUsers({ user, onClose }) {
                           <MenuItem value="physicalEducation">Educação Física</MenuItem>
                           <MenuItem value="religion">Ensino Religioso</MenuItem>
                         </Select>
-                        {errorFields.subject && <Typography color="error">Campo obrigatório</Typography>}
+                        {errorFields.schoolSubject && <Typography color="error">Campo obrigatório</Typography>}
                       </FormControl>
                     </Grid>
                   )}
