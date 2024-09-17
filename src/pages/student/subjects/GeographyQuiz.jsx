@@ -269,6 +269,7 @@ const GeographyQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'geography',
       points: isCorrect ? points : 0, 
+      classRoom: currentQuestion.classRoom,
     });
   
     setAnswered(true);

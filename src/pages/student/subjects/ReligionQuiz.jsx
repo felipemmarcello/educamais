@@ -269,6 +269,7 @@ const ReligionQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'religion',
       points: isCorrect ? points : 0,
+      classRoom: currentQuestion.classRoom,
     });
     
   

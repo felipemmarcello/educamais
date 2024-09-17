@@ -269,6 +269,7 @@ const HistoryQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'history',
       points: isCorrect ? points : 0, 
+      classRoom: currentQuestion.classRoom,
     });
   
     setAnswered(true);

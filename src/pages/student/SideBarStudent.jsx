@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box, LinearProgress } from '@mui/material';
+import { Avatar, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Box, LinearProgress, Tooltip } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -89,6 +89,8 @@ function SideBarStudent() {
             boxSizing: 'border-box',
             position: 'relative',
             height: '100%',
+            backgroundImage: 'linear-gradient(135deg, #203A43, #2C5364)',
+            color: '#fff',
           },
         }}
       >
@@ -110,107 +112,107 @@ function SideBarStudent() {
       variant="permanent"
       sx={{
         width: 240,
-        display: 'flex',
-        flexDirection: 'column',
         '& .MuiDrawer-paper': {
           width: 240,
           boxSizing: 'border-box',
           position: 'relative',
           height: '100%',
-          borderColor: 'black',
+          backgroundImage: 'linear-gradient(135deg, #203A43, #2C5364)',
+          color: '#ffffff',
         },
       }}
     >
-      <List sx={{ flex: 1, padding: 0, backgroundColor: '#5589c4' }}>
-        <ListItem sx={{ backgroundColor: '#5589c4', padding: 3, borderBottom: '1px solid #dedede', borderColor: 'black'}}>
-          <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main', marginRight: 2 }}>{user.name[0]}</Avatar>
-          <ListItemText 
-            primary={
-              <Typography variant="h6" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA' }}>
-                {formatUserName(user.name)}
-              </Typography>
-            } 
-            secondary={
-              <Box>
-                <Typography variant="caption" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA', display: 'block' }}>
-                  {`${user.schoolYear || 'Ano'}º ${user.classRoom || 'Turma'}`}
-                </Typography>
-                <Typography variant="caption" style={{ whiteSpace: 'normal', wordBreak: 'break-word', color: '#FFFAFA', marginTop: '5px' }}>
-                  {userRoleDisplayName}
-                </Typography>
-              </Box>
-            } 
-          />
+      <List sx={{ flex: 1, padding: 0 }}>
+        <ListItem
+          sx={{
+            padding: 3,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center', 
+          }}
+        >
+          <Avatar sx={{ width: 60, height: 60, bgcolor: 'secondary.main' }}>{user.name[0]}</Avatar>
+          <Typography variant="h6" sx={{ mt: 1 }}>
+            {formatUserName(user.name)}
+          </Typography>
+          <Typography variant="caption">
+            {`${user.schoolYear || 'Ano'}º ${user.classRoom || 'Turma'}`}
+          </Typography>
+          <Typography variant="caption" sx={{ mt: 1 }}>
+            {userRoleDisplayName}
+          </Typography>
         </ListItem>
 
-
-
-        <ListItem sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: '1px solid #dedede', borderColor: 'black', backgroundColor: '#5589c4'}}>
-          
-          <Typography variant="body2" sx={{ color: '#FFFAFA', marginBottom: 1.8, marginTop: 1 }}>
+        <ListItem sx={{ textAlign: 'center', py: 2, flexDirection: 'column' }}>
+          <Typography variant="body2" sx={{ color: '#FFFAFA', mb: 1 }}>
             Pontos: {user.points || 0}
           </Typography>
-
-          <Typography variant="body2" sx={{ color: '#FFFAFA'}}>
+          <Typography variant="body2" sx={{ color: '#FFFAFA', mb: 1 }}>
             Nível {user.level || 1}
           </Typography>
-
-          <Box sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}>
+          <Box sx={{ width: '100%', px: 2 }}>
             <LinearProgress
               variant="determinate"
               value={calculateProgress(user.exp)}
               sx={{
-                backgroundColor: '#cccccc',
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#FFFAFA',
-                },
+                backgroundColor: '#666',
+                '& .MuiLinearProgress-bar': { backgroundColor: '#fff' },
               }}
             />
-            <Typography variant="caption" sx={{ color: '#FFFAFA', textAlign: 'center', display: 'block' }}>
+            <Typography variant="caption" sx={{ mt: 1, display: 'block', color: '#FFFAFA' }}>
               {user.exp} / {levelRequirements[user.level + 1] || levelRequirements[10]} EXP
             </Typography>
           </Box>
         </ListItem>
 
-        <ListItem disablePadding sx={{p: 0.5, paddingTop: '5%'}}>
-          <ListItemButton component={Link} to="/student">
-            <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" sx={{ color: '#FFFAFA'}} />
-          </ListItemButton>
-        </ListItem>
+        <Tooltip title="Página Inicial" placement="right" sx={{borderTop: '1px solid rgba(255, 255, 255, 0.1)'}}>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/student">
+              <ListItemIcon sx={{ color: '#FFFAFA' }}>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Home" sx={{ color: '#FFFAFA' }} />
+            </ListItemButton>
+          </ListItem>
+        </Tooltip>
 
-        <ListItem disablePadding sx={{p: 0.5}}>
-          <ListItemButton component={Link} to="/student/subjects">
-            <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <MenuBookIcon />
-            </ListItemIcon>
-            <ListItemText primary="Matérias" sx={{ color: '#FFFAFA'}} />
-          </ListItemButton>
-        </ListItem>
+        <Tooltip title="Matérias" placement="right">
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/student/subjects">
+              <ListItemIcon sx={{ color: '#FFFAFA' }}>
+                <MenuBookIcon />
+              </ListItemIcon>
+              <ListItemText primary="Matérias" sx={{ color: '#FFFAFA' }} />
+            </ListItemButton>
+          </ListItem>
+        </Tooltip>
 
-        <ListItem disablePadding sx={{p: 0.5}}>
-          <ListItemButton component={Link} to="/student/leaderboard">
-            <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <LeaderboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Classificação" sx={{ color: '#FFFAFA'}} />
-          </ListItemButton>
-        </ListItem>
+        <Tooltip title="Classificação" placement="right">
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/student/leaderboard">
+              <ListItemIcon sx={{ color: '#FFFAFA' }}>
+                <LeaderboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Classificação" sx={{ color: '#FFFAFA' }} />
+            </ListItemButton>
+          </ListItem>
+        </Tooltip>
 
-        <ListItem disablePadding sx={{p: 0.5}}>
-          <ListItemButton component={Link} to="/student/dashboard">
-            <ListItemIcon sx={{ color: '#FFFAFA'}}>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA'}} />
-          </ListItemButton>
-        </ListItem>
+        <Tooltip title="Dashboard" placement="right">
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/student/dashboard">
+              <ListItemIcon sx={{ color: '#FFFAFA' }}>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" sx={{ color: '#FFFAFA' }} />
+            </ListItemButton>
+          </ListItem>
+        </Tooltip>
 
       </List>
 
-      <Box sx={{ p: 1, borderTop: '1px solid #dedede', backgroundColor: '#336ca5', borderColor: 'black' }}>
+      <Box sx={{ p: 1, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon sx={{ color: '#FFFAFA' }}>
             <LogoutIcon />

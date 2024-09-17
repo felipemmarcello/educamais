@@ -269,6 +269,7 @@ const MathematicsQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'mathematics',
       points: isCorrect ? points : 0, 
+      classRoom: currentQuestion.classRoom,
     });
   
     setAnswered(true);

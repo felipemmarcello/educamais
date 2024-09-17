@@ -269,6 +269,7 @@ const PhysicalEducationQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'physicalEducation',
       points: isCorrect ? points : 0, 
+      classRoom: currentQuestion.classRoom,
     });
   
     setAnswered(true);

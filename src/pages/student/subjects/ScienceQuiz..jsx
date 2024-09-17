@@ -269,6 +269,7 @@ const ScienceQuiz = () => {
       schoolId: schoolId,
       schoolSubject: 'science',
       points: isCorrect ? points : 0, 
+      classRoom: currentQuestion.classRoom,
     });
   
     setAnswered(true);

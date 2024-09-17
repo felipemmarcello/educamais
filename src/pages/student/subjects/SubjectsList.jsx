@@ -25,6 +25,7 @@ const SubjectsList = () => {
   const navigate = useNavigate();
   const [schoolYear, setSchoolYear] = useState('');
   const [schoolId, setSchoolId] = useState('');
+  const [classRoom, setClassRoom] = useState('');
 
   // Mapeamento de subjectId para nome e cor
   const subjectDetails = {
@@ -46,6 +47,7 @@ const SubjectsList = () => {
         const userData = userDoc.data();
         setSchoolYear(userData.schoolYear);
         setSchoolId(userData.schoolId);
+        setClassRoom(userData.classRoom);
       }
     };
 
@@ -58,7 +60,7 @@ const SubjectsList = () => {
       let fetchedSubjects = new Set();
       querySnapshot.docs.forEach((doc) => {
         const data = doc.data();
-        if (data.schoolYear === schoolYear && data.schoolId === schoolId) {
+        if (data.schoolYear === schoolYear && data.schoolId === schoolId && data.classRoom === classRoom) {
           fetchedSubjects.add(data.subject);
         }
       });
@@ -73,10 +75,10 @@ const SubjectsList = () => {
       setSubjects(subjectsArray);
     };
 
-    if (schoolYear && schoolId) {
+    if (schoolYear && schoolId && classRoom) {
       fetchSubjects();
     }
-  }, [subjectId, schoolYear, schoolId]);
+  }, [subjectId, schoolYear, schoolId, classRoom]);
 
   const handleNavigation = (subject) => {
     navigate(`/student/subjects/${subjectId}/${subject}`);
