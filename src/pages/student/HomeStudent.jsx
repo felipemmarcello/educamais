@@ -198,7 +198,6 @@ function HomeStudent() {
                   padding: '1rem',
                   textAlign: 'center',
                   marginTop: '20%',
-                  border: '3px solid #5589c4'
                 }}
               >
                 <img
