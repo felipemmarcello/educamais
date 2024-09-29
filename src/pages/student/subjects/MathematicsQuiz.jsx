@@ -3,9 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
 import { collection, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent } from "@mui/material";
+import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent, LinearProgress } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TextWithColor from '../../../components/TextWithColors.jsx';
 import JSConfetti from 'js-confetti';
 import '../subjectsCSS/QuizStyles.css';
@@ -51,7 +52,6 @@ const QuizQuestion = ({
   timeLeft 
 }) => (
   <div style={{ width: '950px', margin: '0, auto' }}>
-
     <Typography 
       variant="h6" 
       style={{ 
@@ -65,9 +65,16 @@ const QuizQuestion = ({
       }} 
       gutterBottom
     >
-      <Typography variant="body1" style={{marginBottom: '1%' }}>
-        Temporizador: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')} | Termine a tempo para ganhar mais pontos! {/* Timer display */}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '1%' }}>
+        <AccessTimeIcon sx={{ marginRight: '8px', color: '#3f51b5' }} />
+        <Typography variant="body1" sx={{ fontWeight: 'bold', marginRight: '8px' }}>
+          {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Termine a tempo para ganhar mais pontos!
+        </Typography>
+      </Box>
+      <LinearProgress variant="determinate" value={(timeLeft / 120) * 100} sx={{ height: '10px', borderRadius: '5px', marginBottom: '16px' }} /> {/* Barra de progresso ilustrativa */}
       {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '3%', marginRight: '3%' }}>

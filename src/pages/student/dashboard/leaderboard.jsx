@@ -105,9 +105,6 @@ const Leaderboard = () => {
                   <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem', color: '#555' }}>
                     Pontos: {user.points}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem', color: '#555' }}>
-                    {index + 1}º Lugar
-                  </Typography>
                 </Paper>
               </Grid>
             ))}

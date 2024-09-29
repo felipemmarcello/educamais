@@ -307,7 +307,7 @@ const Dashboard = () => {
               <Grid item>
                 <Paper elevation={3} sx={{ p: 3, textAlign: 'center', borderColor: selectedSubject ? subjectDetails[selectedSubject].color : 'inherit', borderWidth: '2px', borderStyle: 'solid' }}>
                   <Typography variant="h6" gutterBottom style={{ fontFamily: 'Arial', fontSize: 18 }}>
-                    A serem respondidos
+                    A serem respondidas
                   </Typography>
                   <List>
                     {unansweredSubjects.length > 0 ? (
