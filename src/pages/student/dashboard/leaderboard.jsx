@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { db } from '../../../firebase/firebase.js';
 import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
-import { Container, Typography, Box, Grid, Paper, Avatar, Divider } from '@mui/material';
+import { Container, Typography, Box, Grid, Paper, Divider } from '@mui/material';
 import UserContext from '../../../contexts/UserContext.jsx';
+import medalouro from '../../../images/medalouro.png';
+import medalprata from '../../../images/medalprata.png';
+import medalbronze from '../../../images/medalbronze.png';
 
 const Leaderboard = () => {
   const { globalUid } = useContext(UserContext);
@@ -55,15 +58,18 @@ const Leaderboard = () => {
     return `${firstName} ${lastNameInitial}`;
   };
 
+  const medalImages = [medalouro, medalprata, medalbronze];
+  const borderColors = ['#FFD700', '#C0C0C0', '#CD7F32']; // Cores das bordas para ouro, prata e bronze
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '2%', paddingBottom: '3%' }}>
-      <Paper elevation={0} sx={{ padding: '2rem', background: 'transparent' }}>
         <Box>
-          <Typography variant="h4" gutterBottom textAlign="center">
+        <div style={{ display: 'flex', paddingTop: '2.4%', paddingLeft: '12%' }}>
+            <Typography variant="h3" sx={{ mb: 2 }}>
             Classificação
-          </Typography>
-
-          <Divider sx={{ marginY: 5 }} />
+            </Typography>
+        </div>
+      <Divider sx={{ width: '80%', margin: 'auto', height: '50%', marginBottom: '4%' }} />
 
           <Grid container spacing={3} justifyContent="center">
             {leaderboardData.slice(0, 3).map((user, index) => (
@@ -73,8 +79,9 @@ const Leaderboard = () => {
                   sx={{
                     padding: 3,
                     textAlign: 'center',
-                    backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32',
                     borderRadius: '16px',
+                    border: `4px solid ${borderColors[index]}`, // Define as bordas com as cores das medalhas
+                    backgroundColor: 'white',
                     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                     '&:hover': {
                       transform: 'scale(1.05)',
@@ -82,17 +89,17 @@ const Leaderboard = () => {
                     },
                   }}
                 >
-                  <Avatar
-                    alt={`Player ${index + 1}`}
-                    sx={{
-                      width: 100,
-                      height: 100,
+                  <img
+                    src={medalImages[index]}
+                    alt={`Medalha ${index + 1}`}
+                    style={{
+                      width: 90,
+                      height: 140,
                       margin: 'auto',
-                      backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32',
-                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                      display: 'block',
                     }}
                   />
-                  <Typography variant="h6" mt={2} sx={{ fontWeight: '600' }}>
+                  <Typography variant="h6" mt={2} sx={{ fontWeight: '600', color: '#333' }}>
                     {formatName(user.name || `Player ${index + 1}`)}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" sx={{ marginTop: '0.5rem', color: '#555' }}>
@@ -133,7 +140,6 @@ const Leaderboard = () => {
             ))}
           </Grid>
         </Box>
-      </Paper>
     </Container>
   );
 };

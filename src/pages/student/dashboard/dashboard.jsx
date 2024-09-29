@@ -77,8 +77,10 @@ const Dashboard = () => {
   const [totalQuestions, setTotalQuestions] = useState({});
   const [answeredQuestions, setAnsweredQuestions] = useState({});
   const [stats, setStats] = useState({});
+  const [correctAnswersCount, setCorrectAnswersCount] = useState(0); // Estado para contagem de respostas corretas
+  const [totalAnswersCount, setTotalAnswersCount] = useState(0); // Estado para contagem de respostas totais
   const subjects = Object.keys(subjectDetails);
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0]);
+  const [selectedSubject, setSelectedSubject] = useState(''); // Inicializado como vazio
   const [activeIndex, setActiveIndex] = useState(0);
   const [questionStats, setQuestionStats] = useState([]);
   const [subjectQuestions, setSubjectQuestions] = useState([]);
@@ -112,15 +114,22 @@ const Dashboard = () => {
       if (!schoolId || !schoolYear) return;
 
       let responsesData = {};
+      let correctCount = 0; // Contagem de respostas corretas
+      let totalCount = 0; // Contagem de respostas totais
       for (let subject of subjects) {
         const subjectResponses = await getDocs(query(collection(db, `user${subject.charAt(0).toUpperCase() + subject.slice(1)}Responses`), where('userId', '==', globalUid)));
         responsesData[subject] = {
           total: subjectResponses.docs.length,
           uniqueQuestions: new Set(subjectResponses.docs.map(doc => doc.data().question)).size,
-          responses: subjectResponses.docs.map(doc => doc.data().question)
+          responses: subjectResponses.docs.map(doc => doc.data().question),
+          correctAnswers: subjectResponses.docs.filter(doc => doc.data().isCorrect === true).length // Contando isCorrect
         };
+        correctCount += responsesData[subject].correctAnswers;
+        totalCount += responsesData[subject].total;
       }
       setAnsweredQuestions(responsesData);
+      setCorrectAnswersCount(correctCount); // Total de respostas corretas
+      setTotalAnswersCount(totalCount); // Total de respostas
     };
 
     fetchQuestionsData();
@@ -160,11 +169,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (selectedSubject && answeredQuestions[selectedSubject]) {
-      const questionCounts = answeredQuestions[selectedSubject].responses.reduce((acc, question) => {
-        acc[question] = (acc[question] || 0) + 1;
-        return acc;
-      }, {});
-      setQuestionStats(Object.entries(questionCounts).map(([question, count]) => ({ question, count })));
+      // Se uma matéria estiver selecionada, mostrar dados dessa matéria
+      const subjectData = answeredQuestions[selectedSubject];
+      setCorrectAnswersCount(subjectData.correctAnswers); // Atualiza contagem de respostas corretas
+      setTotalAnswersCount(subjectData.total); // Atualiza contagem de respostas totais
+    } else {
+      // Se nenhuma matéria for selecionada, somar os totais de todas as matérias
+      let totalCorrect = 0;
+      let totalAnswers = 0;
+  
+      Object.values(answeredQuestions).forEach((subjectData) => {
+        totalCorrect += subjectData.correctAnswers;
+        totalAnswers += subjectData.total;
+      });
+  
+      setCorrectAnswersCount(totalCorrect); // Atualiza contagem de corretas de todas as matérias
+      setTotalAnswersCount(totalAnswers); // Atualiza contagem de totais de todas as matérias
     }
   }, [selectedSubject, answeredQuestions]);
 
@@ -205,17 +225,18 @@ const Dashboard = () => {
 
   const renderBiaxialBarChart = () => {
     const subjectData = subjectQuestions.reduce((acc, { question, subject }) => {
+      // Calcula a quantidade de respostas por questão
       const count = questionStats.find((q) => q.question === question)?.count || 0;
       if (!acc[subject]) {
         acc[subject] = { subject, count: 0, total: 0 };
       }
-      acc[subject].count += count;
-      acc[subject].total += 1;
+      acc[subject].count += count;  // Soma a quantidade de respostas para cada questão
+      acc[subject].total += 1;  // Incrementa o total de questões para o assunto
       return acc;
     }, {});
-
+  
     const data = Object.values(subjectData);
-
+  
     return data.length > 0 ? (
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
@@ -235,58 +256,89 @@ const Dashboard = () => {
   };
 
   return (
-    <Container>
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" gutterBottom textAlign="center" sx={{ paddingTop: '2%' }}>
-          Dashboard
-        </Typography>
-
-        <Divider sx={{ marginY: 5 }} />
+    <Container maxWidth="lg" sx={{ paddingTop: '2%', paddingBottom: '3%' }}>
+      <Box>
+        <div style={{ display: 'flex', paddingTop: '2.4%', paddingLeft: '12%' }}>
+          <Typography variant="h3" sx={{ mb: 2 }}>
+            Dashboard
+          </Typography>
+        </div>
+        <Divider sx={{ width: '80%', margin: 'auto', height: '50%', marginBottom: '4%' }} />
         <Grid container spacing={2}>
-          <Container sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2%'}}>
-          <Grid item xs={2.5}>
-            <Box>
-              <FormControl fullWidth>
-                <InputLabel id="select-subject-label">Selecione a Matéria</InputLabel>
-                <Select
-                  labelId="select-subject-label"
-                  id="select-subject"
-                  value={selectedSubject}
-                  label="Selecione a Matéria"
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                >
-                  {subjects.map((subject) => (
-                    <MenuItem key={subject} value={subject}>
-                      {subjectDetails[subject].name}
+          <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2%' }}>
+            <Grid item xs={2.5}>
+              <Box>
+                <FormControl fullWidth>
+                  <InputLabel id="select-subject-label">Selecione a Matéria</InputLabel>
+                  <Select
+                    labelId="select-subject-label"
+                    id="select-subject"
+                    value={selectedSubject}
+                    label="Selecione a Matéria"
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>Selecione</em>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-          </Grid>
-          <Grid item xs={5.5} sx={{marginLeft: '5%'}}>
-            <Paper elevation={3} sx={{ p: 2}}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                <Typography variant="h6" gutterBottom style={{ marginRight: '8px' }}>
-                  {subjectDetails[selectedSubject].name}
-                </Typography>
-                <img src={subjectDetails[selectedSubject].icon} alt={`${subjectDetails[selectedSubject].name} icon`} style={{ marginBottom: '0.80%', width: '25px' }} />
+                    {subjects.map((subject) => (
+                      <MenuItem key={subject} value={subject}>
+                        {subjectDetails[subject].name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
-              <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>Questões diferentes: {stats[selectedSubject]?.total || 0}</Typography>
-              <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>Respondidas: {stats[selectedSubject]?.answered || 0}</Typography>
-              <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>Restantes: {stats[selectedSubject]?.remaining || 0}</Typography>
-              {renderCustomActiveShapePieChart(selectedSubject)}
-            </Paper>
-          </Grid>
+            </Grid>
+
+            <Grid item xs={3} sx={{ marginLeft: '2%' }}>
+              <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="h6" gutterBottom>
+                  Corretas vs Total
+                </Typography>
+                <Typography variant="h3" sx={{ fontFamily: 'Arial', fontWeight: 'bold' }}>
+                  {correctAnswersCount} / {totalAnswersCount}
+                </Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={5.5} sx={{ marginLeft: '2%' }}>
+              <Paper elevation={3} sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+                  <Typography variant="h6" gutterBottom style={{ marginRight: '8px' }}>
+                    {selectedSubject ? subjectDetails[selectedSubject].name : 'Selecione uma matéria'}
+                  </Typography>
+                  {selectedSubject && (
+                    <img
+                      src={subjectDetails[selectedSubject].icon}
+                      alt={`${subjectDetails[selectedSubject].name} icon`}
+                      style={{ marginBottom: '0.80%', width: '25px' }}
+                    />
+                  )}
+                </Box>
+                {selectedSubject ? (
+                  <>
+                    <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>
+                      Questões diferentes: {stats[selectedSubject]?.total || 0}
+                    </Typography>
+                    <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>
+                      Questões diferentes: {stats[selectedSubject]?.total || 0}
+                    </Typography>
+                    <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>
+                      Respondidas: {stats[selectedSubject]?.answered || 0}
+                    </Typography>
+                    <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>
+                      Restantes: {stats[selectedSubject]?.remaining || 0}
+                    </Typography>
+                    {renderCustomActiveShapePieChart(selectedSubject)}
+                  </>
+                ) : (
+                  <Typography variant="body1" style={{ fontFamily: 'Arial', fontSize: 14 }}>
+                    Selecione uma matéria para ver os detalhes.
+                  </Typography>
+                )}
+              </Paper>
+            </Grid>
           </Container>
-          <Grid item xs={12} sx= {{marginTop: '1%'}}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Conteúdo(s)
-              </Typography>
-              {renderBiaxialBarChart()}
-            </Paper>
-          </Grid>
         </Grid>
       </Box>
     </Container>

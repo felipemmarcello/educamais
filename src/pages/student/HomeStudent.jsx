@@ -187,7 +187,7 @@ function HomeStudent() {
         </ul>
 
         <Grid container spacing={5} justifyContent="center">
-          <Grid item xs={6} md={6}>
+          <Grid item xs={6} md={7}>
             {renderPieChart()}
           </Grid>
 

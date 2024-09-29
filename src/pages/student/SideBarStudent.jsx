@@ -148,18 +148,26 @@ function SideBarStudent() {
           <Typography variant="body2" sx={{ color: '#FFFAFA', mb: 1 }}>
             Pontos: {user.points || 0}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#FFFAFA', mb: 1 }}>
+          <Typography variant="body2" sx={{ color: '#FFFAFA'}}>
             Nível {user.level || 1}
           </Typography>
-          <Box sx={{ width: '100%', px: 2 }}>
-            <LinearProgress
-              variant="determinate"
-              value={calculateProgress(user.exp)}
-              sx={{
-                backgroundColor: '#666',
-                '& .MuiLinearProgress-bar': { backgroundColor: '#fff' },
-              }}
-            />
+          <Box sx={{ width: '100%', px: 2, mt: 2 }}>
+            <Tooltip placement="top">
+              <LinearProgress
+                variant="determinate"
+                value={calculateProgress(user.exp)}
+                sx={{
+                  backgroundColor: '#666',
+                  borderRadius: '10px',
+                  height: '10px',
+                  '& .MuiLinearProgress-bar': {
+                    background: 'linear-gradient(90deg, #FF6347, #FFD700)',
+                    borderRadius: '10px',
+                    transition: 'width 0.4s ease',
+                  },
+                }}
+              />
+            </Tooltip>
             <Typography variant="caption" sx={{ mt: 1, display: 'block', color: '#FFFAFA' }}>
               {user.exp} / {levelRequirements[user.level + 1] || levelRequirements[10]} EXP
             </Typography>
