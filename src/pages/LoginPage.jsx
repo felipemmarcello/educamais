@@ -111,7 +111,7 @@ function LoginPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        border: `3px solid ${theme.palette.primary.main}`
+        border: `3px solid #274856`
       }}>
         <ThemeProvider theme={theme}>
           <TextField
