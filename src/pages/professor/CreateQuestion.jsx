@@ -87,6 +87,7 @@ function CreateQuestion({ question, onClose }) {
   const handleDialogClose = () => {
     setOpenDialog(false);
     setStatus('');
+    clearFields(); // Limpa os campos após fechar o pop-up
     if (onClose) onClose();
   };
 
@@ -111,6 +112,9 @@ function CreateQuestion({ question, onClose }) {
     }
     if (!schoolYear) {
       validationErrors.schoolYear = true;
+    }
+    if (!selectedClassRoom) {
+      validationErrors.selectedClassRoom = true;
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -152,6 +156,17 @@ function CreateQuestion({ question, onClose }) {
     const newAnswers = [...answers];
     newAnswers[index] = value;
     setAnswers(newAnswers);
+  };
+
+  const clearFields = () => {
+    setSchoolSubject('');
+    setSubjectField('');
+    setQuestionText('');
+    setAnswers(['', '', '', '', '']);
+    setCorrectAnswer('');
+    setSchoolYear('');
+    setSelectedClassRoom('');
+    setErrorFields({});
   };
 
   return (
@@ -224,6 +239,7 @@ function CreateQuestion({ question, onClose }) {
                       <MenuItem key={room.id} value={room.name}>{room.name}</MenuItem>
                     ))}
                   </Select>
+                  {errorFields.selectedClassRoom && <Typography color="error">Campo obrigatório</Typography>}
                 </FormControl>
               </Grid>
 

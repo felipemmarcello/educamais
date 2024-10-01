@@ -125,9 +125,9 @@ function HomeStudent() {
     if (!user?.correctAnswers) return null;
     const { correctAnswers } = user;
     
-    if (correctAnswers >= 250) return { image: level5, level: 5 };
-    if (correctAnswers >= 150) return { image: level4, level: 4 };
-    if (correctAnswers >= 70) return { image: level3, level: 3 };
+    if (correctAnswers >= 300) return { image: level5, level: 5 };
+    if (correctAnswers >= 170) return { image: level4, level: 4 };
+    if (correctAnswers >= 80) return { image: level3, level: 3 };
     if (correctAnswers >= 30) return { image: level2, level: 2 };
     if (correctAnswers >= 15) return { image: level1, level: 1 };
     
