@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Grid, Box, Typography, Container, Paper, Divider, Card } from '@mui/material';
+import { Grid, Box, Typography, Container, Paper, Divider, Tooltip } from '@mui/material';
 import UserContext from '../../contexts/UserContext.jsx';
 import { db } from '../../firebase/firebase.js';
 import { doc, onSnapshot, getDocs, query, collection, where } from 'firebase/firestore';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Sector } from 'recharts';
 import level1 from '../../images/medals/level1.png';
 import level2 from '../../images/medals/level2.png';
 import level3 from '../../images/medals/level3.png';
@@ -14,10 +14,10 @@ function HomeStudent() {
   const [user, setUser] = useState(null);
   const [totalQuestions, setTotalQuestions] = useState({});
   const [answeredQuestions, setAnsweredQuestions] = useState({});
-  const [activeIndex, setActiveIndex] = useState(0); 
+  const [activeIndex, setActiveIndex] = useState(0);
   const { globalUid } = useContext(UserContext);
 
-  const COLORS = ['#00C49F', '#f83515']; 
+  const COLORS = ['#00C49F', '#f83515'];
 
   useEffect(() => {
     if (globalUid) {
@@ -186,41 +186,50 @@ function HomeStudent() {
           <li><Typography variant="body1">Visualizar seu desempenho e progresso.</Typography></li>
         </ul>
 
-        <Grid container spacing={5} justifyContent="center">
-          <Grid item xs={6} md={7}>
+        <Grid container spacing={2} justifyContent={{ xs: 'flex-start', md: 'center' }}>
+          <Grid item xs={6} md={5}>
             {renderPieChart()}
           </Grid>
 
           {getMedalImage() && (
-            <Grid>
-              <Card
+            <Grid item xs={6} md={5}>
+              <Box
                 sx={{
-                  padding: '1rem',
+                  padding: '1.2rem',
                   textAlign: 'center',
-                  marginTop: '20%',
+                  marginTop: '16%',
                 }}
               >
-                <img
-                  alt={`Medalha Nível ${getMedalImage().level}`}
-                  src={getMedalImage().image}
-                  style={{ 
-                    width: '150px', 
-                    height: '150px', 
-                    marginBottom: '16px', 
-                    objectFit: 'contain'
-                  }}
-                />
-                <Typography variant="h6" sx={{ color: '#000000' }}>
-                  Medalha de Nível {getMedalImage().level}
+                <Tooltip
+                  title={
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="body2" sx={{ color: '#FFFFFF' }}>
+                        Parabéns por alcançar {user.correctAnswers} respostas corretas!
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#FFFFFF' }}>
+                        Continue acertando mais perguntas para melhorar sua medalha!
+                      </Typography>
+                    </Box>
+                  }
+                  arrow
+                  placement="top"
+                >
+                  <img
+                    alt={`Medalha Nível ${getMedalImage().level}`}
+                    src={getMedalImage().image}
+                    style={{
+                      width: '150px',
+                      height: '150px',
+                      marginBottom: '16px',
+                      objectFit: 'contain',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </Tooltip>
+                <Typography variant="h6" sx={{ color: '#000000', marginBottom: '3%' }}>
+                  {getMedalImage().level}ª Medalha Conquistada!
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#000000' }}>
-                  Parabéns por alcançar {user.correctAnswers} respostas corretas!
-                </Typography>
-
-                <Typography variant="body2" sx={{ color: '#000000' }}>
-                  Acerte mais perguntas para melhorar sua medalha!
-                </Typography>
-              </Card>
+              </Box>
             </Grid>
           )}
         </Grid>

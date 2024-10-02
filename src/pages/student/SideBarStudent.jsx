@@ -10,6 +10,8 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState, useContext } from 'react';
 import UserContext from '../../contexts/UserContext.jsx';
+import coin from '../../images/coin.png';
+import levelup from '../../images/up-arrows.png';
 
 const levelRequirements = {
   1: 0,
@@ -145,12 +147,18 @@ function SideBarStudent() {
         </ListItem>
 
         <ListItem sx={{ textAlign: 'center', py: 2, flexDirection: 'column' }}>
-          <Typography variant="body2" sx={{ color: '#FFFAFA', mb: 1 }}>
-            Pontos: {user.points || 0}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#FFFAFA'}}>
-            Nível {user.level || 1}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: '#FFFAFA', mr: 1 }}>
+              Pontos: {user.points || 0}
+            </Typography>
+            <img src={coin} alt="coin" width={20} height={20} />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#FFFAFA', mr: 1 }}>
+              Nível {user.level || 1}
+            </Typography>
+            <img src={levelup} alt="levelup" width={17} height={17} />
+          </Box>
           <Box sx={{ width: '100%', px: 2, mt: 2 }}>
             <Tooltip placement="top">
               <LinearProgress
