@@ -277,6 +277,7 @@ const PhysicalEducationQuiz = () => {
       schoolSubject: 'physicalEducation',
       points: isCorrect ? points : 0, 
       classRoom: currentQuestion.classRoom,
+      correctAnswer: currentQuestion.correctAnswer
     });
   
     setAnswered(true);

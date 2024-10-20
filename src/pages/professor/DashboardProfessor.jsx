@@ -13,6 +13,8 @@ import artIcon from '../../images/artIcon.png';
 import englishIcon from '../../images/englishIcon.png';
 import physicalEducationIcon from '../../images/physicalEducationIcon.png';
 import religionIcon from '../../images/religionIcon.png';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const subjectDetails = {
   portuguese: { name: 'Língua Portuguesa', icon: portugueseIcon },
@@ -29,7 +31,7 @@ const subjectDetails = {
 const DashboardProfessor = () => {
   const { globalUid } = useContext(UserContext);
   const [schoolId, setSchoolId] = useState('');
-  const [schoolSubject, setSchoolSubject] = useState(''); // Alterado para schoolSubject
+  const [schoolSubject, setSchoolSubject] = useState(''); 
   const [contents, setContents] = useState([]);
   const [students, setStudents] = useState([]);
   const [selectedContent, setSelectedContent] = useState('');
@@ -40,6 +42,7 @@ const DashboardProfessor = () => {
   const [studentPage, setStudentPage] = useState(1);
   const [selectedStudent, setSelectedStudent] = useState('');
   const [studentPerformance, setStudentPerformance] = useState({ correct: 0, incorrect: 0 });
+  const [responsePage, setResponsePage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -144,6 +147,19 @@ const DashboardProfessor = () => {
 
     return { correct, incorrect };
   };
+
+  const paginatedResponses = responses
+  .filter(
+    (response) =>
+      response.userId === selectedStudent &&
+      response.subject === selectedContent
+  )
+  .slice((responsePage - 1) * itemsPerPage, responsePage * itemsPerPage);
+
+// Função para trocar de página
+const handleResponsePageChange = (event, newPage) => {
+  setResponsePage(newPage);
+};
 
   useEffect(() => {
     const updatePerformance = async () => {
@@ -418,6 +434,97 @@ const DashboardProfessor = () => {
               </Paper>
             </Grid>
           )}
+
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+            {selectedStudent && selectedContent && (
+              <Box sx={{ mt: 2, width: '80%' }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ mb: 2, textAlign: 'center', fontSize: '1rem', fontFamily: 'Arial' }}
+                >
+                {`Respostas do ${students.find(student => student.id === selectedStudent)?.name || ''}`}
+                </Typography>
+
+                <Box>
+                  {paginatedResponses.map((response, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        mb: 2,
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid #e0e0e0',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 'bold',
+                            marginBottom: '4px',
+                            fontSize: '0.9rem',
+                          }}
+                        >
+                          {`Pergunta: ${response.question}`}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: response.isCorrect ? '#388e3c' : '#d32f2f',
+                            marginBottom: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          {response.isCorrect ? (
+                            <>
+                              <CheckCircleIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                              {`Resposta Selecionada: ${response.selectedAnswer}`}
+                            </>
+                          ) : (
+                            <>
+                              <CancelIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                              {`Resposta Selecionada: ${response.selectedAnswer}`}
+                            </>
+                          )}
+                        </Typography>
+                        {!response.isCorrect && (
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#388e3c',
+                              marginTop: '10px',
+                              marginBottom: '2px',
+                              fontSize: '0.85rem',
+                            }}
+                          >
+                            {`Resposta Correta: ${response.correctAnswer}`}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+
+                <Pagination
+                  count={Math.ceil(
+                    responses.filter(
+                      (response) =>
+                        response.userId === selectedStudent &&
+                        response.subject === selectedContent
+                    ).length / itemsPerPage
+                  )}
+                  page={responsePage}
+                  onChange={handleResponsePageChange}
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}
+                />
+              </Box>
+            )}
+          </Box>;
+
         </Grid>
       </Box>
     </Container>
