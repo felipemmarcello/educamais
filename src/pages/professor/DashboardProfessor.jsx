@@ -438,84 +438,110 @@ const handleResponsePageChange = (event, newPage) => {
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
             {selectedStudent && selectedContent && (
               <Box sx={{ mt: 2, width: '80%' }}>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   sx={{ mb: 2, textAlign: 'center', fontSize: '1rem', fontFamily: 'Arial' }}
                 >
-                {`Respostas do ${students.find(student => student.id === selectedStudent)?.name || ''}`}
+                  {`Exibindo as primeiras tentativas de resposta do(a) ${
+                    students.find((student) => student.id === selectedStudent)?.name || ''
+                  } por questão diferente`}
                 </Typography>
 
                 <Box>
-                  {paginatedResponses.map((response, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        mb: 2,
-                        padding: '12px',
-                        borderRadius: '8px',
-                        border: '1px solid #e0e0e0',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Box sx={{ flexGrow: 1 }}>
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            fontWeight: 'bold',
-                            marginBottom: '4px',
-                            fontSize: '0.9rem',
-                          }}
-                        >
-                          {`Pergunta: ${response.question}`}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: response.isCorrect ? '#388e3c' : '#d32f2f',
-                            marginBottom: '2px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            fontSize: '0.85rem',
-                          }}
-                        >
-                          {response.isCorrect ? (
-                            <>
-                              <CheckCircleIcon sx={{ mr: 1, fontSize: '1rem' }} />
-                              {`Resposta Selecionada: ${response.selectedAnswer}`}
-                            </>
-                          ) : (
-                            <>
-                              <CancelIcon sx={{ mr: 1, fontSize: '1rem' }} />
-                              {`Resposta Selecionada: ${response.selectedAnswer}`}
-                            </>
-                          )}
-                        </Typography>
-                        {!response.isCorrect && (
+                  {responses
+                    .filter((response) =>
+                      response.userId === selectedStudent &&
+                      response.subject === selectedContent &&
+                      response.timestamp
+                    )
+                    .sort((a, b) => a.timestamp?.toMillis() - b.timestamp?.toMillis())
+                    .reduce((uniqueQuestions, current) => {
+                      const isDuplicate = uniqueQuestions.some(
+                        (item) => item.question === current.question
+                      );
+                      if (!isDuplicate) uniqueQuestions.push(current);
+                      return uniqueQuestions;
+                    }, []) // Mantém apenas a primeira tentativa por questão
+                    .slice((responsePage - 1) * itemsPerPage, responsePage * itemsPerPage) // Paginação correta
+                    .map((response, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          mb: 2,
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '1px solid #e0e0e0',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: 'bold',
+                              marginBottom: '4px',
+                              fontSize: '0.9rem',
+                            }}
+                          >
+                            {`Pergunta: ${response.question}`}
+                          </Typography>
                           <Typography
                             variant="body2"
                             sx={{
-                              color: '#388e3c',
-                              marginTop: '10px',
+                              color: response.isCorrect ? '#388e3c' : '#d32f2f',
                               marginBottom: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
                               fontSize: '0.85rem',
                             }}
                           >
-                            {`Resposta Correta: ${response.correctAnswer}`}
+                            {response.isCorrect ? (
+                              <>
+                                <CheckCircleIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                                {`Resposta Selecionada: ${response.selectedAnswer}`}
+                              </>
+                            ) : (
+                              <>
+                                <CancelIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                                {`Resposta Selecionada: ${response.selectedAnswer}`}
+                              </>
+                            )}
                           </Typography>
-                        )}
+                          {!response.isCorrect && (
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#388e3c',
+                                marginTop: '10px',
+                                marginBottom: '2px',
+                                fontSize: '0.85rem',
+                              }}
+                            >
+                              {`Resposta Correta: ${response.correctAnswer}`}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
                 </Box>
 
                 <Pagination
                   count={Math.ceil(
-                    responses.filter(
-                      (response) =>
-                        response.userId === selectedStudent &&
-                        response.subject === selectedContent
-                    ).length / itemsPerPage
+                    responses
+                      .filter(
+                        (response) =>
+                          response.userId === selectedStudent &&
+                          response.subject === selectedContent &&
+                          response.timestamp
+                      )
+                      .reduce((uniqueQuestions, current) => {
+                        const isDuplicate = uniqueQuestions.some(
+                          (item) => item.question === current.question
+                        );
+                        if (!isDuplicate) uniqueQuestions.push(current);
+                        return uniqueQuestions;
+                      }, []).length / itemsPerPage
                   )}
                   page={responsePage}
                   onChange={handleResponsePageChange}
@@ -523,7 +549,8 @@ const handleResponsePageChange = (event, newPage) => {
                 />
               </Box>
             )}
-          </Box>;
+          </Box>
+
 
         </Grid>
       </Box>

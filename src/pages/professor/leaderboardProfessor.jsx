@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { db } from '../../firebase/firebase.js';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
-import { Container, Typography, Paper, Grid, Divider, Avatar, Box } from '@mui/material';
+import { Container, Typography, Paper, Grid, Divider, Avatar, Box, Tooltip } from '@mui/material';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import { amber, grey, deepPurple } from '@mui/material/colors';
 import UserContext from '../../contexts/UserContext.jsx';
 
 const LeaderboardProfessor = () => {
@@ -10,13 +13,12 @@ const LeaderboardProfessor = () => {
   const [schoolId, setSchoolId] = useState('');
   const [leaderboardData, setLeaderboardData] = useState([]);
 
-  // Função que extrai o primeiro nome e o sobrenome seguinte
   const formatUserName = (name) => {
     const nameParts = name.split(' ');
     if (nameParts.length > 1) {
-      return `${nameParts[0]} ${nameParts[1]}`; // Exibe apenas o primeiro nome e o segundo nome
+      return `${nameParts[0]} ${nameParts[1]}`;
     }
-    return nameParts[0]; // Se não houver sobrenome, exibe apenas o primeiro nome
+    return nameParts[0];
   };
 
   useEffect(() => {
@@ -35,13 +37,28 @@ const LeaderboardProfessor = () => {
     const fetchLeaderboardData = async () => {
       if (!schoolId || !schoolSubject) return;
 
-      const studentQuery = query(collection(db, 'users'), where('schoolId', '==', schoolId), where('role', '==', 'student'));
+      const studentQuery = query(
+        collection(db, 'users'), 
+        where('schoolId', '==', schoolId), 
+        where('role', '==', 'student')
+      );
       const studentSnapshot = await getDocs(studentQuery);
-      const studentList = studentSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, points: 0 }));
+      const studentList = studentSnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        name: doc.data().name, 
+        points: 0 
+      }));
 
       for (let student of studentList) {
-        const responsesRef = collection(db, `user${schoolSubject.charAt(0).toUpperCase() + schoolSubject.slice(1)}Responses`);
-        const responsesQuery = query(responsesRef, where('userId', '==', student.id), where('schoolSubject', '==', schoolSubject));
+        const responsesRef = collection(
+          db, 
+          `user${schoolSubject.charAt(0).toUpperCase() + schoolSubject.slice(1)}Responses`
+        );
+        const responsesQuery = query(
+          responsesRef, 
+          where('userId', '==', student.id), 
+          where('schoolSubject', '==', schoolSubject)
+        );
         const responsesSnapshot = await getDocs(responsesQuery);
 
         let totalPoints = 0;
@@ -55,13 +72,7 @@ const LeaderboardProfessor = () => {
         student.points = totalPoints;
       }
 
-      studentList.sort((a, b) => {
-        if (b.points === a.points) {
-          return a.name.localeCompare(b.name); 
-        }
-        return b.points - a.points;
-      });
-
+      studentList.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
       setLeaderboardData(studentList);
     };
 
@@ -69,36 +80,48 @@ const LeaderboardProfessor = () => {
   }, [schoolId, schoolSubject]);
 
   const renderList = () => (
-    <Grid container spacing={2} sx={{ margin: 'auto', width: '80%' }}>
+    <Grid container spacing={2 } sx={{ margin: 'auto', width: '60%' }}>
       {leaderboardData.map((user, index) => (
-        <Grid item xs={7} key={user.id} sx={{ width: '100%', margin: 'auto' }}>
+        <Grid item xs={12} key={user.id} sx={{ width: '100%', margin: 'auto' }}>
           <Paper
             elevation={3}
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '10px 20px',
-              borderRadius: '8px',
+              padding: '16px 24px',
+              borderRadius: '12px',
+              background: index === 0 ? amber[100] : grey[100],
               transition: '0.3s',
               '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
+                transform: 'scale(1.02)',
+                boxShadow: '0px 12px 24px rgba(0, 0, 0, 0.15)',
               },
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar sx={{ bgcolor: '#1976d2', marginRight: 2 }}>{user.name.charAt(0).toUpperCase()}</Avatar>
-              <Typography variant="body1" sx={{ fontSize: 18, fontWeight: 500 }}>
-                {`${index + 1}. ${formatUserName(user.name)}`} {/* Função aplicada aqui */}
+              <Avatar 
+                sx={{ 
+                  bgcolor: index === 0 ? amber[700] : deepPurple[500], 
+                  marginRight: 2 
+                }}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+              <Typography variant="h6" sx={{ fontWeight: 40, fontSize: 20 }}>
+                {`${index + 1}. ${formatUserName(user.name)}`}
               </Typography>
+              {index === 0 && (
+                <Tooltip title="Primeiro lugar!" arrow>
+                  <EmojiEventsIcon sx={{ color: amber[700], ml: 1 }} />
+                </Tooltip>
+              )}
             </Box>
             <Typography
-              variant="body2"
+              variant="h6"
               sx={{
-                fontSize: 16,
                 fontWeight: 'bold',
-                color: '#000000',
+                color: grey[800],
                 padding: '6px 12px',
                 borderRadius: '16px',
               }}
@@ -119,7 +142,6 @@ const LeaderboardProfessor = () => {
         </Typography>
       </div>
       <Divider sx={{ width: '80%', margin: 'auto', height: '50%', marginBottom: '4%' }} />
-
       {renderList()}
     </div>
   );

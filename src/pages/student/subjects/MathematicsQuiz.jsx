@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
-import { collection, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent, LinearProgress } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -277,7 +277,8 @@ const MathematicsQuiz = () => {
       schoolSubject: 'mathematics',
       points: isCorrect ? points : 0, 
       classRoom: currentQuestion.classRoom,
-      correctAnswer: currentQuestion.correctAnswer
+      correctAnswer: currentQuestion.correctAnswer,
+      timestamp: serverTimestamp()
     });
   
     setAnswered(true);
