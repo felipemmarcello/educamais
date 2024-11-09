@@ -3,10 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "../../../firebase/firebase.js";
 import { collection, getDocs, addDoc, doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent, LinearProgress } from "@mui/material";
+import { Container, Paper, Typography, Radio, RadioGroup, FormControl, FormControlLabel, Button, CircularProgress, Box, CardContent, LinearProgress, Tooltip, Divider } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import InfoIcon from '@mui/icons-material/Info';
+import StarIcon from '@mui/icons-material/Star';
 import TextWithColor from '../../../components/TextWithColors.jsx';
 import JSConfetti from 'js-confetti';
 import '../subjectsCSS/QuizStyles.css';
@@ -49,7 +51,8 @@ const QuizQuestion = ({
   answered,
   currentQuestionIndex,
   totalQuestions,
-  timeLeft 
+  timeLeft,
+  hasAnsweredBefore
 }) => (
   <div style={{ width: '950px', margin: '0, auto' }}>
     <Typography 
@@ -73,48 +76,63 @@ const QuizQuestion = ({
         <Typography variant="body2" color="textSecondary">
           Termine a tempo para ganhar mais pontos!
         </Typography>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+          <Typography variant="body2" sx={{ color: hasAnsweredBefore ? 'green' : 'red', mr: 1 }}>
+            {hasAnsweredBefore ? "Respondida" : "Não Respondida"}
+          </Typography>
+          <Tooltip 
+            title={
+              hasAnsweredBefore 
+                ? "Não ganhará mais EXP e Pontos por essa questão e não será contabilizado os resultados no final"
+                : "Pode ganhar EXP e Pontos por essa questão"
+            }
+          >
+            <InfoIcon fontSize="small" color="action" />
+          </Tooltip>
+        </Box>
       </Box>
-      <LinearProgress variant="determinate" value={(timeLeft / 120) * 100} sx={{ height: '10px', borderRadius: '5px', marginBottom: '16px' }} /> {/* Barra de progresso ilustrativa */}
+      <LinearProgress variant="determinate" value={(timeLeft / 120) * 100} sx={{ height: '10px', borderRadius: '5px', marginBottom: '16px' }} />
       {`${currentQuestionIndex + 1}) ${question.question}`}
     </Typography>
     <FormControl component="fieldset" style={{ display: 'flex', marginLeft: '3%', marginRight: '3%' }}>
-          <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
-          {question.answers.map((answer, index) => {
-            let backgroundColor = "inherit";
-            let color = "inherit";
-            if (answered) {
-              if (answer === question.correctAnswer) {
-                backgroundColor = "#00a86b";
-                color = "white";
-              } else if (answer === selectedAnswer) {
-                backgroundColor = "#e76b57";
-                color = "white";
-              }
+      <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
+        {question.answers.map((answer, index) => {
+          let backgroundColor = "inherit";
+          let color = "inherit";
+          if (answered) {
+            if (answer === question.correctAnswer) {
+              backgroundColor = "#00a86b";
+              color = "white";
+            } else if (answer === selectedAnswer) {
+              backgroundColor = "#e76b57";
+              color = "white";
             }
-            return (
-              <FormControlLabel
-                key={index}
-                value={answer}
-                control={<Radio />}
-                sx={{ paddingBottom: '6px' }}
-                label={
-                  <span style={{
-                    backgroundColor: backgroundColor, 
-                    color: color, 
-                    padding: '5px 0px', 
-                    borderRadius: '3px',
-                    maxWidth: '100%', 
-                    overflowWrap: 'break-word',  
-                    whiteSpace: 'normal'
-                  }}>
-                    {answer}
-                  </span>
-                }
-                disabled={answered}
-              />
-            );
-          })}
-        </RadioGroup>
+          }
+          return (
+            <FormControlLabel
+              key={index}
+              value={answer}
+              control={<Radio />}
+              sx={{ paddingBottom: '6px' }}
+              label={
+                <span style={{
+                  backgroundColor: backgroundColor, 
+                  color: color, 
+                  padding: '5px 0px', 
+                  borderRadius: '3px',
+                  maxWidth: '100%', 
+                  overflowWrap: 'break-word',  
+                  whiteSpace: 'normal'
+                }}>
+                  {answer}
+                </span>
+              }
+              disabled={answered}
+            />
+          );
+        })}
+      </RadioGroup>
       <div style={{ display: 'flex', marginTop: 20, marginBottom: '3%' }}>
         <Button
           variant="contained"
@@ -142,25 +160,55 @@ const QuizQuestion = ({
   </div>
 );
 
-const QuizResults = ({ correctCount, incorrectCount, quizPoints }) => (
-  <CardContent sx={{ marginTop: '22%', width: '400px', height: '180px', textAlign: 'center', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-    <Typography variant="h5" gutterBottom>Resultados</Typography>
-    <Box display="flex" alignItems="center" mb={2}>
-      <Typography variant="body1">Total de Perguntas: {correctCount + incorrectCount}</Typography>
-    </Box>
-    <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
-      <CheckCircleIcon color="success" sx={{ mr: 1 }} />
-      <Typography variant="body1">Respostas Corretas: {correctCount}</Typography>
-    </Box>
-    <Box display="flex" justifyContent="center" alignItems="center">
-      <CancelIcon color="error" sx={{ mr: 1 }} />
-      <Typography variant="body1">Respostas Incorretas: {incorrectCount}</Typography>
-    </Box>
-    <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
-      <Typography variant="h6">Pontos Obtidos: {quizPoints}</Typography>
-    </Box>
-  </CardContent>
-);
+const QuizResults = ({ correctCount, incorrectCount, quizPoints }) => {
+  const totalQuestions = correctCount + incorrectCount;
+  const correctPercentage = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+
+  return (
+    <CardContent sx={{ textAlign: 'center', padding: '24px', maxWidth: '500px', margin: 'auto', borderRadius: '10px', marginTop: '5%' }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#3f51b5' }}>Resultados</Typography>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', my: 3 }}>
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+          <CircularProgress variant="determinate" value={correctPercentage} size={100} thickness={4} sx={{ color: '#3f51b5' }} />
+          <Box sx={{
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Typography variant="h5" component="div" color="textPrimary">
+              {`${Math.round(correctPercentage)}%`}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      <Typography variant="h6" gutterBottom>Total de Perguntas: {totalQuestions}</Typography>
+      
+      <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+        <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+        <Typography variant="body1">Respostas Corretas: {correctCount}</Typography>
+      </Box>
+      
+      <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+        <CancelIcon color="error" sx={{ mr: 1 }} />
+        <Typography variant="body1">Respostas Incorretas: {incorrectCount}</Typography>
+      </Box>
+
+      <Divider sx={{ my: 2 }} />
+
+      <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+        <StarIcon color="warning" sx={{ mr: 1 }} />
+        <Typography variant="h5" sx={{color: '#ff9800' }}>Pontos Obtidos: {quizPoints}</Typography>
+      </Box>
+    </CardContent>
+  );
+};
 
 const ReligionQuiz = () => {
   const { subjectId, selectedSubject } = useParams();
@@ -177,10 +225,10 @@ const ReligionQuiz = () => {
   const [schoolId, setSchoolId] = useState('');
   const [quizPoints, setQuizPoints] = useState(0);
   const [timeLeft, setTimeLeft] = useState(120); 
+  const [hasAnsweredBefore, setHasAnsweredBefore] = useState(false); 
 
   const navigate = useNavigate();
 
-  // Timer effect
   useEffect(() => {
     let timer;
     if (!answered && timeLeft > 0) {
@@ -241,6 +289,21 @@ const ReligionQuiz = () => {
     setSelectedAnswer(event.target.value);
   };
 
+  useEffect(() => {
+    const checkAnsweredBefore = async () => {
+      if (user) {
+        const currentQuestion = questions[currentQuestionIndex];
+        const responseSnapshot = await getDocs(collection(db, "userReligionResponses"));
+        const alreadyAnswered = responseSnapshot.docs.some((doc) => 
+          doc.data().userId === user.uid && doc.data().question === currentQuestion.question
+        );
+        setHasAnsweredBefore(alreadyAnswered);
+      }
+    };
+
+    checkAnsweredBefore();
+  }, [currentQuestionIndex, user, questions]);
+
   const handleSubmit = async () => {
     if (!user) {
       console.error("Usuário não autenticado!");
@@ -248,36 +311,42 @@ const ReligionQuiz = () => {
     }
   
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
     let points = 0;
     let exp = 0;
+    let isCorrect = selectedAnswer === currentQuestion.correctAnswer;
   
-    if (isCorrect) {
-      if (timeLeft > 0) {
-        points = 10; 
-      } else {
-        points = 5;
-      }
-      setCorrectCount((prev) => prev + 1);
-      exp = 50; 
+    const userResponseQuery = collection(db, "userReligionResponses");
+    const responseSnapshot = await getDocs(userResponseQuery);
+    const hasAnsweredBefore = responseSnapshot.docs.some((doc) => 
+      doc.data().userId === user.uid && doc.data().question === currentQuestion.question
+    );
+  
+    if (hasAnsweredBefore) {
+      console.log("O usuário já respondeu a esta pergunta antes. Nenhum ponto ou XP será concedido.");
     } else {
-      setIncorrectCount((prev) => prev + 1);
+      if (isCorrect) {
+        points = timeLeft > 0 ? 10 : 5; 
+        exp = 50;  
+        setCorrectCount((prev) => prev + 1);
+      } else {
+        setIncorrectCount((prev) => prev + 1);
+      }
+      setQuizPoints((prev) => prev + points);
     }
-  
-    setQuizPoints((prev) => prev + points); 
   
     await addDoc(collection(db, "userReligionResponses"), {
       userId: user.uid,
       question: currentQuestion.question,
       selectedAnswer,
-      isCorrect: isCorrect,
+      isCorrect,
       subject: currentQuestion.subject,
-      schoolYear: schoolYear,
-      schoolId: schoolId,
+      schoolYear,
+      schoolId,
       schoolSubject: 'religion',
-      points: isCorrect ? points : 0, 
+      points: hasAnsweredBefore ? 0 : points, 
       classRoom: currentQuestion.classRoom,
       correctAnswer: currentQuestion.correctAnswer,
+      hasAnsweredBefore, 
       timestamp: serverTimestamp()
     });
   
@@ -305,13 +374,13 @@ const ReligionQuiz = () => {
         const newExp = (userData.exp || 0) + (correctCount * 50); 
         const newLevel = calculateLevel(newExp);  
         const totalPoints = (userData.points || 0) + quizPoints; 
-        const correctAnswers = (userData.correctAnswers || 0) + correctCount; // Atualizando a contagem de respostas corretas
+        const correctAnswers = (userData.correctAnswers || 0) + correctCount;
   
         await updateDoc(userRef, {
           points: totalPoints, 
           exp: newExp,
           level: newLevel,
-          correctAnswers // Adicionando o campo de respostas corretas
+          correctAnswers
         });
       }
     }
@@ -345,7 +414,8 @@ const ReligionQuiz = () => {
                   answered={answered}
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={questions.length}
-                  timeLeft={timeLeft} 
+                  timeLeft={timeLeft}
+                  hasAnsweredBefore={hasAnsweredBefore}
                 />
               ) : (
                 <CircularProgress />
