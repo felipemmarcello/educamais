@@ -203,7 +203,9 @@ function CreateSchool({ onClose }) {
                         }}
                       >
                         <MenuItem value=".com">.com</MenuItem>
+                        <MenuItem value=".br">.br</MenuItem>
                         <MenuItem value=".com.br">.com.br</MenuItem>
+                        <MenuItem value=".net">.net</MenuItem>
                       </Select>
                     </FormControl>
                   </InputAdornment>
